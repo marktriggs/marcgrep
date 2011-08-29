@@ -20,6 +20,7 @@
 (def job-queue (atom []))
 (def output-dir "/var/tmp")
 (def worker-threads 2)
+(def max-concurrent-jobs 1)
 
 (def controlfield-pattern #"00[0-9]")
 
@@ -219,12 +220,11 @@
               (recur)))))))
 
 
-(defn run-jobs []
-  ;; we read the job queue at a moment in time.  Anything added after this will
-  ;; have to wait for the next run.
-  (let [jobs (filter #(= (:status @%) :not-started)
-                     @job-queue)
-        files (into {} (map (fn [job]
+
+(def job-runner (agent []))
+
+(defn run-jobs [jobs]
+  (let [files (into {} (map (fn [job]
                               (let [outfile (file output-dir (str (:id @job) ".txt"))
                                     outfh (MarcXmlWriter.
                                            (FileOutputStream. outfile))]
@@ -232,8 +232,6 @@
                                 [job {:file outfile
                                       :fh outfh}]))
                             jobs))]
-
-    (doseq [job jobs] (swap! job assoc :status :running))
 
     (let [queue (LinkedBlockingQueue. 512)
           workers (doall
@@ -255,8 +253,23 @@
              :file-ready? true)
 
       ;; Mark jobs as completed
-      (swap! job assoc :status :completed)))
-  "OK")
+      (swap! job assoc :status :completed))))
+
+
+(defn schedule-job-run [current-jobs]
+  (while (>= (count (filter (complement future-done?) current-jobs))
+             max-concurrent-jobs)
+    ;; sit around and wait for a job to finish
+    (Thread/sleep 5000))
+
+  ;; Snapshot the job queue and mark those jobs as running
+  (when-let [jobs (seq (filter #(= (:status @%) :not-started)
+                               @job-queue))]
+    (doseq [job jobs] (swap! job assoc :status :running))
+
+    ;; and add the running job to the run queue
+    (cons (future (run-jobs jobs))
+          (filter (complement future-done?) current-jobs))))
 
 
 
@@ -316,7 +329,8 @@
 (defroutes main-routes
   (POST "/add_job" request (add-job (read-json (:query (:params request)))))
   (POST "/delete_job" request (delete-job (:id (:params request))))
-  (POST "/run_jobs" request (run-jobs))
+  (POST "/run_jobs" request (do (send-off job-runner #'schedule-job-run)
+                                "OK"))
   (GET "/job_output/:id" [id] (serve-file id))
   (GET "/job_list" [] (render-job-list))
   (route/files "/" [:root "public"])
