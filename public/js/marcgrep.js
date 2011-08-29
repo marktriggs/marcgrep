@@ -114,12 +114,6 @@ function update_form() {
 
   $('.clause_group:first').find('.boolean_label:first').html('<b>Where</b>');
 
-  if ($('.job').size() > 0) {
-    $('.joblist').fadeIn();
-  } else {
-    $('.joblist').fadeOut();
-  }
-
   $('.where_clause').each(function (idx, clause) {
       var selected = $(clause).find('.operator option:selected');
       $(clause).find('.field_value').attr('disabled', !!selected.attr('no_value'));
@@ -285,8 +279,6 @@ function get_job_list()
             list.append(row);
           });
 
-        update_form();
-
         $('.delete_job').click(function (event) {
             var job_id = $(event.target).data('job_id');
             $.ajax({
@@ -298,6 +290,11 @@ function get_job_list()
                   }});
           });
 
+        if ($('.job').size() > 0) {
+          $('.joblist').fadeIn();
+        } else {
+          $('.joblist').fadeOut();
+        }
       },
         });
 }
