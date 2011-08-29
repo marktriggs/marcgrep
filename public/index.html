@@ -1,0 +1,155 @@
+<html>
+
+  <head>
+    <link rel="stylesheet" type="text/css" href="css/reset.css" />
+    <link rel="stylesheet" type="text/css" href="css/styles.css" />
+
+    <script src="js/jquery-1.6.2.min.js"></script>
+    <script src="js/json2.js"></script>
+    <script src="js/marcgrep.js"></script>
+  </head>
+
+  <body>
+    <h1>MARCgrep</h1>
+
+    <p>This is tool for extracting all of the MARC records that match
+    some given criteria.</p>
+
+    <p>To get started, define the criteria of interest below and
+    submit your job to the system.</p>
+
+    <select class="boolean_options" style="display: none">
+      <option value="AND">AND</option>
+      <option value="OR">OR</option>
+    </select>
+
+    <div class="container">
+      <div class="button_container">
+        <div class="remove_button_container">
+          <input class="remove_button" type="button" value="remove"/>
+        </div>
+        <div class="group_button_container">
+          <input class="group_button" type="button" value="group"/>
+        </div>
+        <div class="ungroup_button_container">
+          <input class="ungroup_button" type="button" value="ungroup"/>
+        </div>
+      </div>
+
+      <div class="clause_group">
+        <div class="where_clause">
+          <span class="boolean_label">Where</span>
+          <div class="clause">
+            <table>
+              <tr>
+                <td>the</td>
+                <td><input type="text" class="target_field"/></td>
+                <td>field</td>
+                <td>
+                  <select class="operator">
+                    <option value="contains">exists and contains</option>
+                    <option value="does_not_contain">exists and doesn't contain</option>
+                    <option value="equals">exists and is exactly</option>
+                    <option value="not_equals">exists and isn't</option>
+                    <option no_value=1 value="exists">exists</option>
+                    <option no_value=1 value="does_not_exist">doesn't exist</option>
+                    <option value="matches_regexp">matches regular expression</option>
+                    <option value="does_not_match_regexp">does not match regular expression</option>
+                    <option no_value=1 value="repeats_field">appears more than once</option>
+                    <option no_value=1 value="does_not_repeat_field">appears exactly once</option>
+                  </select>
+                </td>
+                <td>
+                  <input type="text" class="field_value" />
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="and_or_buttons">
+        <input type="button" class="and_button" value="AND"/>
+        <input type="button" class="or_button" value="OR"/>
+      </div>
+      <div class="submit_button">
+        <input id="submit" type="button" value="Submit job"/>
+      </div>
+    </div>
+
+    <div class="querysection">
+      <h2>Your query</h2>
+      <pre>
+        <div id="querydisplay">&nbsp;</div>
+      </pre>
+    </div>
+
+    <div class="joblist">
+      <h2>Job list</h2>
+      <table id="job_list">
+        <tr>
+          <th>Query</th>
+          <th>Submitted at</th>
+          <th>Status</th>
+          <th>&nbsp;</th>
+          <th>&nbsp;</th>
+        </tr>
+      </table>
+
+      <input type="button" class="bombs_away" value="Run all jobs"/>
+    </div>
+
+
+    <script>
+      <!-- Wire up the buttons -->
+      $('.and_button').click(function (elt) {
+          add_clause(elt, "AND");
+       });
+
+      $('.or_button').click(function (elt) {
+          add_clause(elt, "OR");
+       });
+
+      $('.group_button').click(function (elt) {
+          merge_groups();
+       });
+
+      $('.ungroup_button').click(function (elt) {
+          split_groups();
+       });
+
+      $('.remove_button').click(function (elt) {
+          remove_groups();
+       });
+
+
+      $(':button').click(function (elt) { update_form(); });
+      $('input').change(function (elt) { update_form(); });
+      $('select').change(function (elt) { update_form(); });
+
+      $('#submit').click(function (elt) {
+        var query = generate_query();
+        $.ajax({
+          "type" : "POST",
+          "url" : "/add_job",
+          "data" : {"query" : query},
+          "success" : function() {
+            get_job_list();
+          }
+        });
+      });
+
+
+      $('.bombs_away').click(function (elt) {
+          run_jobs();
+       });
+
+
+      update_form();
+
+      setInterval(function() { get_job_list(); }, 2000);
+      get_job_list();
+    </script>
+
+
+  </body>
+</html>

@@ -1,0 +1,139 @@
+/* my bits */
+body {
+  margin-left: 1em;
+}
+
+p { margin-bottom: 1em; }
+
+h1 {
+  font-size: 200%;
+  font-weight: bold;
+  margin-top: 10px;
+  margin-bottom: 50px;
+}
+
+h2 {
+  font-size: 150%;
+  font-weight: bold;
+  margin-top: 30px;
+  margin-bottom: 10px;
+}
+
+.clause {
+  display: inline;
+}
+
+.boolean_label {
+  font-weight: bold;
+  float: left;
+  text-align: right;
+  padding-right: 1em;
+  width: 4em;
+}
+
+.container {
+  border-top: solid #cdcdcd 1px;
+  border-bottom: solid #cdcdcd 1px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  width: 55em;
+}
+
+.where_clause {
+    margin-top: 10px;
+}
+
+.clause_group {
+    margin-top: 20px;
+    border: solid white 4px;
+}
+
+.grouper_checkbox {
+  float: right;
+}
+
+.and_or_buttons {
+  float: right;
+  margin-top: 20px;
+  clear: both;
+}
+
+.button_container {
+  height: 50px;
+  overflow: auto;
+  width: 100%;
+}
+
+.remove_button_container {
+  float: right;
+}
+
+.group_button_container {
+  float: right;
+}
+
+.ungroup_button_container {
+  float: right;
+}
+
+.target_field {
+  display: inline-block;
+  width: 7em;
+ }
+
+.clause table * {
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+label {
+  text-align: center;
+  display: inline-block;
+  width: 7em;
+  font-size: 60%;
+  color: grey;
+ }
+
+
+.group_button {display: none;}
+.ungroup_button {display: none;}
+.remove_button {display: none;}
+
+.submit_button {
+  margin-top: 100px;
+  display: none;
+}
+
+#querydisplay {
+  font-family: monospace;
+}
+
+.field_value {
+    width: 15em;
+}
+
+table th {
+    text-align: left;
+    font-weight: bold;
+    padding: 5px;
+    border-top: solid 1px;
+    border-bottom: solid 1px;
+}
+
+
+table td {
+    padding-bottom: 10px;
+    padding-right: 2em;
+}
+
+table td {
+    padding-bottom: 25px;
+}
+
+.joblist {
+    display: none;
+}
+
+.querysection {
+    display: none;
+}
