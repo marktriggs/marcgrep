@@ -6,6 +6,8 @@
  :worker-threads 2
  :max-concurrent-jobs 1
 
+ :marc-destination marcgrep.destinations.marcfile
+
  :marc-backend marcgrep.backends.nla
  :solr-index "/var/local/solr/data/index"
  }

@@ -3,7 +3,7 @@
         [clojure.string :only [join]]
         clojure.java.io
         clojure.contrib.json)
-  (:import [org.marc4j MarcXmlReader MarcStreamWriter MarcXmlWriter]
+  (:import [org.marc4j MarcXmlReader]
            [org.marc4j.marc
             Record VariableField DataField
             ControlField Subfield]
@@ -168,38 +168,45 @@
 
 
 
-(defn run-worker [id jobs files queue]
+(defn run-worker [id jobs outputs queue]
   (future
-    (loop []
-      (let [record (.take queue)]
-        (if (= record :eof)
-          (.put queue :eof)
-          (do (doseq [job jobs]
-                (swap! job update-in [:records-checked] inc)
-                (when ((:query @job) record)
-                  (swap! job update-in [:hits] inc)
-                  (locking (:fh (files job))
-                    (.write (:fh (files job)) record))))
-              (recur)))))))
+    (try
+      (loop []
+        (let [record (.take queue)]
+          (if (= record :eof)
+            (.put queue :eof)
+            (do (doseq [job jobs]
+                  (swap! job update-in [:records-checked] inc)
+                  (when ((:query @job) record)
+                    (swap! job update-in [:hits] inc)
+                    (locking (outputs job)
+                      (.write (outputs job) record))))
+                (recur)))))
+      (catch Throwable ex
+        (.printStackTrace ex)))))
 
+
+
+(defprotocol MarcDestination
+  (init [this])
+  (getInputStream [this jobid])
+  (write [this record])
+  (close [this]))
 
 
 (def job-runner (agent []))
 
 (defn run-jobs [jobs]
-  (let [files (into {} (map (fn [job]
-                              (let [outfile (file (:output-dir @config)
-                                                  (str (:id @job) ".txt"))
-                                    outfh (MarcStreamWriter.
-                                           (FileOutputStream. outfile))]
-                                (.deleteOnExit outfile)
-                                [job {:file outfile
-                                      :fh outfh}]))
-                            jobs))]
+  (let [outputs (into {} (map (fn [job]
+                                [job ((ns-resolve (:marc-destination @config)
+                                                  'get-destination-for)
+                                      config
+                                      job)])
+                              jobs))]
 
     (let [queue (LinkedBlockingQueue. 512)
           workers (doall
-                   (map #(run-worker % jobs files queue)
+                   (map #(run-worker % jobs outputs queue)
                         (range (:worker-threads @config))))]
 
       (with-open [marc-records ((ns-resolve (:marc-backend @config )
@@ -213,10 +220,8 @@
 
     (doseq [job jobs]
       ;; close the output file and make it available
-      (.close (:fh (files job)))
-      (swap! job assoc
-             :file (:file (files job))
-             :file-ready? true)
+      (.close (outputs job))
+      (swap! job assoc :file-ready? true)
 
       ;; Mark jobs as completed
       (swap! job assoc :status :completed))))
@@ -306,7 +311,10 @@
   (POST "/delete_job" request (delete-job (:id (:params request))))
   (POST "/run_jobs" request (do (send-off job-runner #'schedule-job-run)
                                 "OK"))
-  (GET "/job_output/:id" [id] (serve-file id))
+  (GET "/job_output/:id" [id] ((ns-resolve (:marc-destination @config)
+                                           'get-output-for)
+                               config
+                               (get-job id)))
   (GET "/job_list" [] (render-job-list))
   (route/files "/" [:root "public"])
   (route/not-found "Page not found"))
@@ -317,4 +325,5 @@
 (defn -main []
   (reset! config (read (PushbackReader. (reader "config.clj"))))
   (require (:marc-backend @config ))
+  (require (:marc-destination @config))
   (jetty/run-jetty (handler/api #'*app*) {:port (:listen-port @config)}))
