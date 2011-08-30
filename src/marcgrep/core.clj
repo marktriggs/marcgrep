@@ -7,22 +7,21 @@
            [org.marc4j.marc
             Record VariableField DataField
             ControlField Subfield]
-           [java.io BufferedReader ByteArrayInputStream FileOutputStream]
+           [java.io BufferedReader PushbackReader ByteArrayInputStream
+            FileOutputStream]
            [java.util Date]
            [java.util.concurrent LinkedBlockingQueue])
   (:require [compojure.route :as route]
             [compojure.handler :as handler]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.params :as params]
-            [clojure.contrib.repl-utils :as ru]))
+            [clojure.contrib.repl-utils :as ru])
+  (:gen-class))
 
 
 (def job-queue (atom []))
-(def output-dir "/var/tmp")
-(def worker-threads 2)
-(def max-concurrent-jobs 1)
-
 (def controlfield-pattern #"00[0-9]")
+(def config (atom {}))
 
 
 (defn matching-fields [^Record record fieldspec]
@@ -167,42 +166,6 @@
   (next [this])
   (close [this]))
 
-(defn filter-nla-record [^Record record]
-  (doseq [vf (.getVariableFields record)]
-    (when (= (.getTag ^VariableField vf) "vuf")
-      (.removeVariableField record vf)))
-  record)
-
-
-
-(deftype MarcXMLFile [^{:unsynchronized-mutable true :tag BufferedReader} fh filename]
-  MarcSource
-  (init [this] (set! fh (reader filename)) )
-  (next [this]
-    (loop [line :start]
-      (when line
-        (if (not= "<record>" line)
-          (recur (.readLine fh))
-          (let [sb (StringBuilder.)]
-            (loop [line line]
-              (when line
-                (.append sb line)
-                (.append sb "\n")
-                (if (= "</record>" line)
-                  (doto (.next (MarcXmlReader.
-                                (ByteArrayInputStream.
-                                 (.getBytes (.toString sb) "UTF-8"))))
-                    (filter-nla-record)
-                    )
-                  (recur (.readLine fh))))))))))
-  (close [this] (.close fh)))
-
-
-
-(defn all-marc-records []
-  (let [marc-records (MarcXMLFile. nil "/home/mst/updates.xml")]
-    (.init marc-records)
-    marc-records))
 
 
 (defn run-worker [id jobs files queue]
@@ -225,7 +188,8 @@
 
 (defn run-jobs [jobs]
   (let [files (into {} (map (fn [job]
-                              (let [outfile (file output-dir (str (:id @job) ".txt"))
+                              (let [outfile (file (:output-dir @config)
+                                                  (str (:id @job) ".txt"))
                                     outfh (MarcXmlWriter.
                                            (FileOutputStream. outfile))]
                                 (.deleteOnExit outfile)
@@ -236,9 +200,11 @@
     (let [queue (LinkedBlockingQueue. 512)
           workers (doall
                    (map #(run-worker % jobs files queue)
-                        (range worker-threads)))]
+                        (range (:worker-threads @config))))]
 
-      (with-open [marc-records (all-marc-records)]
+      (with-open [marc-records ((ns-resolve (:marc-backend @config )
+                                            'all-marc-records)
+                                config)]
         (doseq [record (take-while identity (repeatedly #(.next marc-records)))]
           (.put queue record))
         (.put queue :eof))
@@ -257,19 +223,25 @@
 
 
 (defn schedule-job-run [current-jobs]
-  (while (>= (count (filter (complement future-done?) current-jobs))
-             max-concurrent-jobs)
-    ;; sit around and wait for a job to finish
-    (Thread/sleep 5000))
+  (try
+    (while (>= (count (filter (complement future-done?) current-jobs))
+               (:max-concurrent-jobs @config))
+      ;; sit around and wait for a job to finish
+      (Thread/sleep 5000))
 
-  ;; Snapshot the job queue and mark those jobs as running
-  (when-let [jobs (seq (filter #(= (:status @%) :not-started)
-                               @job-queue))]
-    (doseq [job jobs] (swap! job assoc :status :running))
+    ;; Snapshot the job queue and mark those jobs as running
+    (when-let [jobs (seq (filter #(= (:status @%) :not-started)
+                                 @job-queue))]
+      (doseq [job jobs] (swap! job assoc :status :running))
 
-    ;; and add the running job to the run queue
-    (cons (future (run-jobs jobs))
-          (filter (complement future-done?) current-jobs))))
+      ;; and add the running job to the run queue
+      (cons (future
+              (try (run-jobs jobs)
+                   (catch Throwable ex
+                     (.printStackTrace ex))))
+            (filter (complement future-done?) current-jobs)))
+    (catch Throwable ex
+      (.printStackTrace ex))))
 
 
 
@@ -336,7 +308,10 @@
   (route/files "/" [:root "public"])
   (route/not-found "Page not found"))
 
+
 (def ^:dynamic *app* (-> #'main-routes params/wrap-params))
 
-
-(def server (jetty/run-jetty (handler/api #'*app*) {:port 9095}))
+(defn -main []
+  (reset! config (read (PushbackReader. (reader "config.clj"))))
+  (require (:marc-backend @config ))
+  (jetty/run-jetty (handler/api #'*app*) {:port (:listen-port @config)}))

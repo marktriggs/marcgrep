@@ -1,0 +1,11 @@
+{:output-dir "/var/tmp"
+
+ :listen-port 9095
+
+ ;; Note: the total number of active threads will be (roughly) these two values multiplied.
+ :worker-threads 2
+ :max-concurrent-jobs 1
+
+ :marc-backend marcgrep.backends.nla
+ :solr-index "/var/local/solr/data/index"
+ }
