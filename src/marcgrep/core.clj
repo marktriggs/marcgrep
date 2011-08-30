@@ -227,10 +227,12 @@
     (while (>= (count (filter (complement future-done?) current-jobs))
                (:max-concurrent-jobs @config))
       ;; sit around and wait for a job to finish
+      (doseq [job (filter #(= (:status @%) :not-started) @job-queue)]
+        (swap! job assoc :status :waiting))
       (Thread/sleep 5000))
 
     ;; Snapshot the job queue and mark those jobs as running
-    (when-let [jobs (seq (filter #(= (:status @%) :not-started)
+    (when-let [jobs (seq (filter #(#{:not-started :waiting} (:status @%))
                                  @job-queue))]
       (doseq [job jobs] (swap! job assoc :status :running))
 
@@ -275,6 +277,7 @@
 
 
 (def status-text {:not-started "Not started"
+                  :waiting "Waiting to run"
                   :running "Running"
                   :completed "Finished!"})
 
