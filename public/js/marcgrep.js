@@ -310,3 +310,67 @@ function run_jobs()
           get_job_list();
         }});
 }
+
+
+function extract_output_options()
+{
+  var options = {}
+  $('.input_field').each(function (idx, field) {
+      options[$(field).attr('name')] = $(field).val();
+    });
+
+  return JSON.stringify(options);
+}
+
+
+function render_field(field)
+{
+  var result = $('<div class="field_options"></div>');
+
+  if (field['type'] == 'text') {
+    result.append($('<label for="' + field['name'] + '">' + field['label'] + '</label><table class="input_field_container"><tr><td><input class="input_field" type="text" name="' + field['name'] + '" /></td></tr><tr><td class="caption">' + field['caption'] + '</td></tr></table>'));
+  }
+
+  result.hide();
+
+  return result;
+}
+
+
+function show_output_options(select)
+{
+  var option = $(select).find(':selected');
+  var elt = option.data('options');
+
+  $('.field_options').hide();
+
+  if (elt) {
+    elt.show();
+  }
+}
+
+
+function get_output_options()
+{
+  $.ajax({
+      "type" : "GET",
+        "url" : "destination_options",
+        "success" : function (data) {
+        var output_selection = $('<select id="selected_output"></select>');
+        $('.output_options').append(output_selection);
+
+        $(data).each(function (idx, option) {
+            var option_elt = $('<option value="' + idx + '">' + option['description'] + '</option>');
+            output_selection.append(option_elt);
+
+            $(option['required-fields']).each(function (idx, field) {
+                var field_elt = render_field(field);
+                $('.output_options').append(field_elt);
+                option_elt.data('options', field_elt);
+              });
+          });
+
+        output_selection.change(function (event) { show_output_options(event.target) });
+        show_output_options(output_selection);
+      }});
+}

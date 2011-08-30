@@ -24,3 +24,9 @@
         outfh (MarcStreamWriter. (FileOutputStream. outfile))]
     (.deleteOnExit outfile)
     (MarcFileDestination. outfh)))
+
+(marcgrep.core/register-destination
+ {:description "MARC file"
+  :get-destination-for get-destination-for
+  :get-output-for get-output-for
+  :required-fields []})

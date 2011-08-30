@@ -20,15 +20,14 @@
 
 
 (def job-queue (atom []))
-(def controlfield-pattern #"00[0-9]")
 (def config (atom {}))
-
+(def destinations (atom []))
 
 (defn matching-fields [^Record record fieldspec]
   (filter (fn [^VariableField field]
             (and
              (= (.getTag field) (:tag fieldspec))
-             (or (re-matches controlfield-pattern (:tag fieldspec))
+             (or (re-matches (:controlfield-pattern @config) (:tag fieldspec))
                  (or (not (:ind1 fieldspec))
                      (= (.getIndicator1 ^DataField field)
                         (:ind1 fieldspec)))
@@ -41,7 +40,7 @@
 
 
 (defn field-values [^Record record fieldspec]
-  (if (re-matches controlfield-pattern (:tag fieldspec))
+  (if (re-matches (:controlfield-pattern @config) (:tag fieldspec))
     [(.getData ^ControlField (.getVariableField record (:tag fieldspec)))]
     (when-let [fields (seq (matching-fields record fieldspec))]
       (map (fn [^DataField field]
@@ -193,13 +192,16 @@
   (write [this record])
   (close [this]))
 
+(defn register-destination [opts]
+  (swap! destinations conj opts))
+
 
 (def job-runner (agent []))
 
 (defn run-jobs [jobs]
   (let [outputs (into {} (map (fn [job]
-                                [job ((ns-resolve (:marc-destination @config)
-                                                  'get-destination-for)
+                                [job ((-> @job :destination
+                                          :get-destination-for)
                                       config
                                       job)])
                               jobs))]
@@ -252,10 +254,11 @@
 
 
 
-(defn add-job [query]
+(defn add-job [query destination field-options]
   (when query
     (swap! job-queue conj
            (atom {:query (compile-query query)
+                  :destination destination
                   :submission-time (Date.)
                   :hits 0
                   :records-checked 0
@@ -263,6 +266,7 @@
                   :file-ready? false
                   :status :not-started
                   :query-string query
+                  :field-options field-options
                   :id (str (gensym))})))
   "Added")
 
@@ -301,19 +305,39 @@
 
 
 (defn serve-file [id]
- {:headers {"Content-disposition" (format "attachment; filename=%s.txt"
-                                          id)}
-   :body ((ns-resolve (:marc-destination @config)
-                                           'get-output-for)
-                               config
-                               (get-job id))})
+  (let [job (get-job id)]
+    {:headers {"Content-disposition" (format "attachment; filename=%s.txt"
+                                             id)}
+     :body ((-> @job :destination :get-output-for)
+            config
+            job)}))
+
+
+(defn render-destination-options []
+  {:headers {"Content-type" "application/json"}
+   :body (json-str (map (fn [destination]
+                          (into {}
+                                (map #(vector % (destination %))
+                                     [:description
+                                      :required-fields])))
+                        @destinations))})
+
+
+(defn handle-add-job [request]
+  (add-job (read-json (:query (:params request)))
+           (try (@destinations
+                 (Integer. (:destination
+                            (:params request))))
+                (catch NumberFormatException _ 0))
+           (read-json (:field-options (:params request)))))
 
 
 (defroutes main-routes
-  (POST "/add_job" request (add-job (read-json (:query (:params request)))))
+  (POST "/add_job" request (handle-add-job request))
   (POST "/delete_job" request (delete-job (:id (:params request))))
   (POST "/run_jobs" request (do (send-off job-runner #'schedule-job-run)
                                 "OK"))
+  (GET "/destination_options" [id] (render-destination-options))
   (GET "/job_output/:id" [id] (serve-file id))
   (GET "/job_list" [] (render-job-list))
   (route/files "/" [:root "public"])
@@ -324,6 +348,9 @@
 
 (defn -main []
   (reset! config (read (PushbackReader. (reader "config.clj"))))
-  (require (:marc-backend @config ))
-  (require (:marc-destination @config))
+
+  (require (:marc-backend @config))
+  (doseq [destination (:marc-destination-list @config)]
+    (require destination))
+
   (jetty/run-jetty (handler/api #'*app*) {:port (:listen-port @config)}))

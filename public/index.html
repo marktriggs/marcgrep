@@ -71,6 +71,9 @@
         <input type="button" class="and_button" value="AND"/>
         <input type="button" class="or_button" value="OR"/>
       </div>
+      <div class="output_options">
+        <h3>Choose an output option</h3>
+      </div>
       <div class="submit_button">
         <input id="submit" type="button" value="Submit job"/>
       </div>
@@ -131,7 +134,9 @@
         $.ajax({
           "type" : "POST",
           "url" : "add_job",
-          "data" : {"query" : query},
+          "data" : {"query" : query,
+                    "field-options" : extract_output_options(),
+                    "destination" : $('#selected_output').val()},
           "success" : function() {
             get_job_list();
           }
@@ -148,6 +153,7 @@
 
       setInterval(function() { get_job_list(); }, 2000);
       get_job_list();
+      get_output_options();
     </script>
 
 
