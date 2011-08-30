@@ -296,8 +296,8 @@ function get_job_list()
         } else {
           $('.joblist').fadeOut();
         }
-      },
-        });
+      }
+    });
 }
 
 
