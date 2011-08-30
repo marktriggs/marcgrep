@@ -130,7 +130,7 @@
         var query = generate_query();
         $.ajax({
           "type" : "POST",
-          "url" : "/add_job",
+          "url" : "add_job",
           "data" : {"query" : query},
           "success" : function() {
             get_job_list();

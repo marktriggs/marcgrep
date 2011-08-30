@@ -249,7 +249,7 @@ function get_job_list()
 {
   $.ajax({
       "type" : "GET",
-        "url" : "/job_list",
+        "url" : "job_list",
         "success" : function(data) {
         var list = $('#job_list');
 
@@ -263,13 +263,13 @@ function get_job_list()
             var status = job['status'];
 
             if (job['records-checked'] > 0) {
-              status += ' (' + job['hits'] + ' out of ' + job['records-checked'] + ' checked)';
+              status += ' (' + job['hits'] + ' hits; ' + job['records-checked'] + ' records checked)';
             }
 
             row.append('<td>' + status + '</td>');
 
             if (job['file-available']) {
-              row.append('<td><a href="/job_output/' + job['id'] + '">Download output</a></td>');
+              row.append('<td><a href="job_output/' + job['id'] + '">Download output</a></td>');
             }
 
             var delete_button = $('<input class="delete_job" type="button" value="delete"/>');
@@ -284,7 +284,7 @@ function get_job_list()
             var job_id = $(event.target).data('job_id');
             $.ajax({
                 "type" : "POST",
-                  "url" : "/delete_job",
+                  "url" : "delete_job",
                   "data" : {"id" : job_id},
                   "success" : function (data) {
                     get_job_list();
@@ -305,7 +305,7 @@ function run_jobs()
 {
   $.ajax({
       "type" : "POST",
-        "url" : "/run_jobs",
+        "url" : "run_jobs",
         "success" : function (data) {
           get_job_list();
         }});
