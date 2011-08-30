@@ -190,7 +190,7 @@
   (let [files (into {} (map (fn [job]
                               (let [outfile (file (:output-dir @config)
                                                   (str (:id @job) ".txt"))
-                                    outfh (MarcXmlWriter.
+                                    outfh (MarcStreamWriter.
                                            (FileOutputStream. outfile))]
                                 (.deleteOnExit outfile)
                                 [job {:file outfile
