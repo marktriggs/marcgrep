@@ -82,10 +82,6 @@ h2 {
   width: 7em;
  }
 
-.clause table * {
-    margin-left: 10px;
-    margin-right: 10px;
-}
 
 label {
   text-align: center;
@@ -124,7 +120,7 @@ table th {
 
 table td {
     padding-bottom: 10px;
-    padding-right: 2em;
+    padding-right: 1em;
 }
 
 table td {
