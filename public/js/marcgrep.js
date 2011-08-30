@@ -134,6 +134,7 @@ function update_form() {
     $('.querysection').fadeIn();
     $('.submit_button').fadeIn();
   } else {
+    $('.submit_button').fadeOut();
     $('.querysection').fadeOut();
   }
 }

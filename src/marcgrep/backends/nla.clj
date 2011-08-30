@@ -29,8 +29,7 @@
                         ^{:unsynchronized-mutable true :tag String} index-path]
   MarcSource
   (init [this]
-    (set! ir (IndexReader/open
-              (org.apache.lucene.store.FSDirectory/open (file index-path))))
+    (set! ir (IndexReader/open index-path))
     (set! nextdoc 0))
   (next [this]
     (when (< nextdoc (.maxDoc ir))
