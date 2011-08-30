@@ -301,9 +301,12 @@
 
 
 (defn serve-file [id]
-  {:headers {"Content-disposition:" (format "attachment; filename=%s.txt"
-                                            id)}
-   :body (:file @(get-job id))})
+ {:headers {"Content-disposition" (format "attachment; filename=%s.txt"
+                                          id)}
+   :body ((ns-resolve (:marc-destination @config)
+                                           'get-output-for)
+                               config
+                               (get-job id))})
 
 
 (defroutes main-routes
@@ -311,10 +314,7 @@
   (POST "/delete_job" request (delete-job (:id (:params request))))
   (POST "/run_jobs" request (do (send-off job-runner #'schedule-job-run)
                                 "OK"))
-  (GET "/job_output/:id" [id] ((ns-resolve (:marc-destination @config)
-                                           'get-output-for)
-                               config
-                               (get-job id)))
+  (GET "/job_output/:id" [id] (serve-file id))
   (GET "/job_list" [] (render-job-list))
   (route/files "/" [:root "public"])
   (route/not-found "Page not found"))
