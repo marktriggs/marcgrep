@@ -174,13 +174,15 @@
         (let [record (.take queue)]
           (if (= record :eof)
             (.put queue :eof)
-            (do (doseq [job jobs]
-                  (swap! job update-in [:records-checked] inc)
-                  (when ((:query @job) record)
-                    (swap! job update-in [:hits] inc)
-                    (locking (outputs job)
-                      (.write (outputs job) record))))
-                (recur)))))
+            (when-let [jobs (seq (filter (fn [job] (not= (:status @job) :deleted))
+                                         jobs))]
+              (doseq [job jobs]
+                (swap! job update-in [:records-checked] inc)
+                (when ((:query @job) record)
+                  (swap! job update-in [:hits] inc)
+                  (locking (outputs job)
+                    (.write (outputs job) record))))
+              (recur)))))
       (catch Throwable ex
         (.printStackTrace ex)))))
 
@@ -214,9 +216,14 @@
       (with-open [marc-records ((ns-resolve (:marc-backend @config )
                                             'all-marc-records)
                                 config)]
-        (doseq [record (take-while identity (repeatedly #(.next marc-records)))]
+        (doseq [record (take-while (fn [record]
+                                     (and (not-every? future-done? workers)
+                                          record))
+                                   (repeatedly #(.next marc-records)))]
           (.put queue record))
-        (.put queue :eof))
+
+        (when (not-every? future-done? workers)
+          (.put queue :eof)))
 
       (doseq [worker workers] @worker))
 
@@ -280,6 +287,8 @@
   (let [job (get-job id)]
     (when (:file @job)
       (.delete (:file @job)))
+
+    (swap! job assoc :status :deleted)
 
     (swap! job-queue #(remove #{job} %)))
   id)
