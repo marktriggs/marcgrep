@@ -315,7 +315,7 @@ function run_jobs()
 function extract_output_options()
 {
   var options = {}
-  $('.input_field').each(function (idx, field) {
+  $('.input_field:visible').each(function (idx, field) {
       options[$(field).attr('name')] = $(field).val();
     });
 
