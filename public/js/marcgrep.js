@@ -323,12 +323,22 @@ function extract_output_options()
 }
 
 
+function text_input(parent_elt, name, class_name, label, caption)
+{
+    parent_elt.append($('<label for="' + name + '">' + label + 
+                        '</label><table class="' + class_name + 
+                        '_container"><tr><td><input class="' + class_name + 'input_field" ' +
+                        'type="text" name="' + name + '" />' + 
+                        '</td></tr><tr><td class="caption">' + caption + '</td></tr></table>'));
+}
+
+
 function render_field(field)
 {
   var result = $('<div class="field_options"></div>');
 
   if (field['type'] == 'text') {
-    result.append($('<label for="' + field['name'] + '">' + field['label'] + '</label><table class="input_field_container"><tr><td><input class="input_field" type="text" name="' + field['name'] + '" /></td></tr><tr><td class="caption">' + field['caption'] + '</td></tr></table>'));
+    text_input(result, field['name'], 'input_field', field['label'], field['caption']);
   }
 
   result.hide();
