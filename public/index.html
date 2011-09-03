@@ -1,10 +1,12 @@
 <html>
 
   <head>
+    <link type="text/css" href="css/flick/jquery-ui-1.8.16.custom.css" rel="Stylesheet" />	
     <link rel="stylesheet" type="text/css" href="css/reset.css" />
     <link rel="stylesheet" type="text/css" href="css/styles.css" />
 
     <script src="js/jquery-1.6.2.min.js"></script>
+    <script src="js/jquery-ui-1.8.16.custom.min.js"></script>
     <script src="js/json2.js"></script>
     <script src="js/marcgrep.js"></script>
   </head>
@@ -13,9 +15,7 @@
     <h1>MARCgrep</h1>
 
     <p>This is a tool for extracting all of the MARC records that match
-    some given criteria.</p>
-
-    <p>To get started, define the criteria of interest below and
+    some given criteria.  To get started, define the criteria of interest below and
     submit your job to the system.</p>
 
     <select class="boolean_options" style="display: none">
@@ -24,78 +24,74 @@
     </select>
 
     <div class="container">
-      <h3>Define your query</h3>
+      <h2><img class="step" src="1.png" /> Add jobs to the system</h2>
 
       <div class="button_container">
-        <div class="remove_button_container">
-          <input class="remove_button" type="button" value="remove"/>
-        </div>
-        <div class="group_button_container">
-          <input class="group_button" type="button" value="group"/>
-        </div>
-        <div class="ungroup_button_container">
-          <input class="ungroup_button" type="button" value="ungroup"/>
-        </div>
+        <input class="remove_button" type="button" value="remove"/>
+        <input class="group_button" type="button" value="group"/>
+        <input class="ungroup_button" type="button" value="ungroup"/>
       </div>
 
-      <div class="clause_group">
-        <div class="where_clause">
-          <span class="boolean_label">Where</span>
-          <div class="clause">
-            <table>
-              <tr>
-                <td>the</td>
-                <td class="target_field_td"></td>
-                <td>field</td>
-                <td>
-                  <select class="operator">
-                    <option value="contains">exists and contains</option>
-                    <option value="does_not_contain">exists and doesn't contain</option>
-                    <option value="equals">exists and is exactly</option>
-                    <option value="not_equals">exists and isn't</option>
-                    <option no_value=1 value="exists">exists</option>
-                    <option no_value=1 value="does_not_exist">doesn't exist</option>
-                    <option value="matches_regexp">matches regular expression</option>
-                    <option value="does_not_match_regexp">doesn't match regular expression</option>
-                    <option no_value=1 value="repeats_field">appears more than once</option>
-                    <option no_value=1 value="does_not_repeat_field">appears exactly once</option>
-                  </select>
-                </td>
-                <td>
-                  <input type="text" class="field_value" />
-                </td>
-              </tr>
-            </table>
+      <h3>Define your query...</h3>
+      <div class="define_query">
+        <div class="clause_group">
+          <div class="where_clause">
+            <span class="boolean_label">Where</span>
+            <div class="clause">
+              <span>the</span>
+              <span class="target_field_container"></span>
+              <span>field</span>
+              <select class="operator">
+                <option value="contains">exists and contains</option>
+                <option value="does_not_contain">exists and doesn't contain</option>
+                <option value="equals">exists and is exactly</option>
+                <option value="not_equals">exists and isn't</option>
+                <option no_value=1 value="exists">exists</option>
+                <option no_value=1 value="does_not_exist">doesn't exist</option>
+                <option value="matches_regexp">matches regular expression</option>
+                <option value="does_not_match_regexp">doesn't match regular expression</option>
+                <option no_value=1 value="repeats_field">appears more than once</option>
+                <option no_value=1 value="does_not_repeat_field">appears exactly once</option>
+              </select>
+              <span><input type="text" class="field_value" /></span>
+            </div>
           </div>
         </div>
+
+        <script type="text/javascript">
+          text_input($('.target_field_container'), 'target_field', 'target_field', '', '245, 245$a, 245!01$a, 245$abc');
+        </script>
+
+        <div class="and_or_buttons">
+          <input type="button" class="preview_query" value="Preview query" style="display: none"/>
+          <input type="button" class="and_button" value="AND"/>
+          <input type="button" class="or_button" value="OR"/>
+        </div>
+
+
+        <div class="querysection" style="display: none">
+          <h2>Your Query</h2>
+          <pre>
+            <div id="querydisplay">&nbsp;</div>
+          </pre>
+        </div>
       </div>
 
-      <script type="text/javascript">
-        text_input($('.target_field_td'), 'target_field',
-        'target_field', '', '245, 245$a, 245!01$a, 245$abc');
-      </script>
 
-      <div class="and_or_buttons">
-        <input type="button" class="and_button" value="AND"/>
-        <input type="button" class="or_button" value="OR"/>
+      <div class="choose_output">
+        <h3>Choose an output option...</h3>
+        <div class="output_options">
+        </div>
       </div>
-      <div class="output_options">
-        <h3>Choose an output option</h3>
-      </div>
+
       <div class="submit_button">
+        <h3>Submit your job</h3>
         <input id="submit" type="button" value="Submit job"/>
       </div>
     </div>
 
-    <div class="querysection">
-      <h2>Your Query</h2>
-      <pre>
-        <div id="querydisplay">&nbsp;</div>
-      </pre>
-    </div>
-
-    <div class="joblist">
-      <h2>Job list</h2>
+    <div class="joblist" style="display: none">
+      <h2><img class="step" src="2.png" /> Run your job(s)</h2>
       <table id="job_list">
         <tr>
           <th>Query</th>
@@ -112,6 +108,11 @@
 
     <script>
       <!-- Wire up the buttons -->
+      $('.preview_query').click(function (elt) {
+          $('.querysection').dialog({width : "650px"});
+       });
+
+
       $('.and_button').click(function (elt) {
           add_clause(elt, "AND");
        });

@@ -131,11 +131,11 @@ function update_form() {
 
   update_buttons();
   if (generate_query()) {
-    $('.querysection').fadeIn();
+    $('.preview_query').fadeIn();
     $('.submit_button').fadeIn();
   } else {
     $('.submit_button').fadeOut();
-    $('.querysection').fadeOut();
+    $('.preview_query').fadeOut();
   }
 }
 
@@ -257,7 +257,7 @@ function get_job_list()
 
         $(data['jobs']).each(function (idx, job) {
             var row = $('<tr class="job"></tr>');
-            row.append('<td><pre>' + JSON.stringify(job['query'], undefined, 4) + '</pre></td>');
+            row.append('<td class="query_column"><div class="job_query">' + JSON.stringify(job['query'], undefined, 4) + '</div></td>');
             row.append('<td>' + job['time'] + '</td>');
 
             var status = job['status'];
@@ -325,11 +325,14 @@ function extract_output_options()
 
 function text_input(parent_elt, name, class_name, label, caption)
 {
-    parent_elt.append($('<label for="' + name + '">' + label + 
-                        '</label><table class="' + class_name + 
-                        '_container"><tr><td><input class="' + class_name + 'input_field" ' +
+    parent_elt.append($('<div class="captioned_input ' + class_name + '_container">' +
+                        (label ? '<label for="' + name + '">' + label + '</label>' : '')+
+                        '<div style="display: inline-block">' +
+                        '<input class="' + class_name + ' input_field" ' +
                         'type="text" name="' + name + '" />' + 
-                        '</td></tr><tr><td class="caption">' + caption + '</td></tr></table>'));
+                        '<div class="caption ' + class_name + '_caption">' + caption + '</div>' +
+                        '</div>' +
+                        '</div>'));
 }
 
 

@@ -1,6 +1,8 @@
 /* my bits */
 body {
   margin-left: 1em;
+  margin-right: 1em;
+  width: 970px;
 }
 
 p { margin-bottom: 1em; }
@@ -9,44 +11,57 @@ h1 {
   font-size: 200%;
   font-weight: bold;
   margin-top: 10px;
-  margin-bottom: 50px;
+  margin-bottom: 20px;
+}
+
+
+.step {
+    width: 30px;
+    margin-right: 10px;
+    position: relative;
+    top: 5px;
 }
 
 h2 {
   font-size: 150%;
   font-weight: bold;
-  margin-top: 30px;
-  margin-bottom: 10px;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
-.clause {
-  display: inline;
+h3 {
+    font-weight: bold;
+    font-size: 125%;
+    margin-bottom: 10px;
+    margin-left: 10px;
+}
+
+h3:before {
+    content: "\2192";
+    margin-right: 10px;
 }
 
 .boolean_label {
-  font-weight: bold;
-  float: left;
-  text-align: right;
-  padding-right: 1em;
-  width: 4em;
+    display: inline-block;
+    width: 4em;
+    font-weight: bold;
 }
 
 .container {
   border-top: solid #cdcdcd 1px;
   border-bottom: solid #cdcdcd 1px;
   padding-top: 10px;
-  padding-bottom: 10px;
-  width: 970px;
+  padding-bottom: 20px;
   overflow: auto;
 }
 
-.where_clause {
-    margin-top: 10px;
+.clause_group {
+    border: solid white 4px;
+    margin-left: 1em;
 }
 
-.clause_group {
-    margin-top: 20px;
-    border: solid white 4px;
+.clause {
+    display: inline;
 }
 
 .grouper_checkbox {
@@ -60,87 +75,45 @@ h2 {
 }
 
 .button_container {
-  height: 50px;
-  overflow: auto;
-  width: 100%;
+    height: 30px;
+    overflow: auto;
+    width: 25%;
+    float: right
 }
 
-.remove_button_container {
-  float: right;
-}
-
-.group_button_container {
-  float: right;
-}
-
-.ungroup_button_container {
-  float: right;
-}
-
-.target_field {
+.target_field_container {
   display: inline-block;
-  width: 7em;
+  width: 12em;
+  position: relative;
+  top: 1ex;
  }
 
-
-.group_button {display: none;}
-.ungroup_button {display: none;}
-.remove_button {display: none;}
+.group_button {display: none; float: right;}
+.ungroup_button {display: none; float: right;}
+.remove_button {display: none; float: right;}
 
 .submit_button {
-  margin-top: 50px;
+  margin-top: 25px;
   display: none;
 }
 
 #querydisplay {
   font-family: monospace;
+  width: 600px;
+  overflow: scroll;
 }
 
 .field_value {
-    width: 15em;
+    width: 20em;
 }
 
-.clause_group table th, .joblist table th {
-    text-align: left;
-    font-weight: bold;
-    padding: 5px;
-    border-top: solid 1px;
-    border-bottom: solid 1px;
-}
-
-
-.clause_group table td, .joblist table td {
-    padding-bottom: 10px;
-    padding-right: 1em;
-}
-
-.clause_group table td, .joblist table td {
-    padding-bottom: 25px;
-}
-
-.joblist {
-    display: none;
-}
-
-.querysection {
-    display: none;
-}
-
-h3 {
-    font-weight: bold;
-    margin-bottom: 10px;
+.choose_output {
+    margin-top: 50px;
 }
 
 .output_options {
-  margin-top: 50;
+  margin-left: 1em;
 }
-
-.output_options label {
-    width: 10em;
-    font-weight: bold;
-    color: black;
-}
-
 
 .output_options input[type=text] {
     width: 30em;
@@ -152,16 +125,67 @@ h3 {
 }
 
 label {
-    display: inline-block;
-    width: 7em;
     vertical-align: top;
+    position: relative;
+    top: 2px;
+    font-weight: bold;
+    margin-right: 1em;
+    color: black;
  }
-
-.input_field_container {
-    display: inline-block;
-}
 
 .caption {
     color: gray;
     font-size: 60%;
+    margin-top: 5px;
+}
+
+.captioned_input {
+    display: inline-block;
+}
+
+input#submit {
+    margin-left: 2em;
+}
+
+table#job_list {
+    width: 100%;
+    border-bottom: solid black 1px;
+}
+
+table#job_list th {
+    text-align: left;
+    font-weight: bold;
+    border-top: solid black 2px;
+    border-bottom: solid black 1px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+table#job_list th {
+    padding-right: 1em;
+}
+
+table#job_list td {
+    border-bottom: solid #cdcdcd 1px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+table#job_list .query_column {
+    padding-right: 1em;
+}
+
+table#job_list .job_query {
+    width: 500px;
+    height: 100%;
+    white-space: pre;
+    scroll-x: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+
+}
+
+.bombs_away
+{
+    margin-top: 1em;
 }
