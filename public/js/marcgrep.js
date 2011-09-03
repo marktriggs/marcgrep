@@ -245,11 +245,17 @@ function generate_query() {
 }
 
 
+function get_timestamp()
+{
+  return new Date().getTime();
+}
+
 function get_job_list()
 {
   $.ajax({
       "type" : "GET",
         "url" : "job_list",
+        "data" : {timestamp : get_timestamp()},
         "success" : function(data) {
         var list = $('#job_list');
 
@@ -368,6 +374,7 @@ function get_output_options()
   $.ajax({
       "type" : "GET",
         "url" : "destination_options",
+        "data" : {timestamp : get_timestamp()},
         "success" : function (data) {
         var output_selection = $('<select id="selected_output"></select>');
         $('.output_options').append(output_selection);

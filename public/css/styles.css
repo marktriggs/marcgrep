@@ -173,6 +173,7 @@ table#job_list th {
 
 table#job_list td {
     border-bottom: solid #cdcdcd 1px;
+    padding-right: 1em;
     padding-top: 10px;
     padding-bottom: 10px;
 }
