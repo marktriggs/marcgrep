@@ -81,11 +81,15 @@ h3:before {
     float: right
 }
 
+.target_field {
+    width: 5em;
+}
+
 .target_field_container {
   display: inline-block;
-  width: 12em;
   position: relative;
   top: 1ex;
+  margin-right: - 1em;
  }
 
 .group_button {display: none; float: right;}
@@ -106,7 +110,7 @@ h3:before {
 }
 
 .field_value {
-    width: 20em;
+    width: 30%;
 }
 
 .choose_output {
