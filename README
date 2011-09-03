@@ -1,4 +1,0 @@
-README to follow.  For now...
-
-Build:  LEIN_SNAPSHOTS_IN_RELEASE=1 lein uberjar
-Run: java -cp marcgrep-0.1-standalone.jar:/path/to/lucene-core-3.0.2.jar marcgrep.core
