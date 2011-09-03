@@ -71,9 +71,7 @@
 
         <div class="querysection" style="display: none">
           <h2>Your Query</h2>
-          <pre>
-            <div id="querydisplay">&nbsp;</div>
-          </pre>
+          <div id="querydisplay">&nbsp;</div>
         </div>
       </div>
 
@@ -109,7 +107,7 @@
     <script>
       <!-- Wire up the buttons -->
       $('.preview_query').click(function (elt) {
-          $('.querysection').dialog({width : "650px"});
+          $('.querysection').dialog({width : 650, height: 650});
        });
 
 

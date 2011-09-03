@@ -236,7 +236,7 @@ function generate_query() {
 
   if (query) {
     var query_text = JSON.stringify(query, undefined, 4);
-    $('#querydisplay').text(query_text);
+    $('#querydisplay').html('<pre>' + query_text + '</pre>');
 
     return query_text;
   } else {

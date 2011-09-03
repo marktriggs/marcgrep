@@ -99,9 +99,10 @@ h3:before {
 
 #querydisplay {
   font-family: monospace;
+  white-space: pre;
   width: 600px;
-  overflow-x: scroll;
-  overflow-y: hidden;
+  scroll-x: auto;
+  scroll-y: auto;
 }
 
 .field_value {
