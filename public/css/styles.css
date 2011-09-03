@@ -100,7 +100,8 @@ h3:before {
 #querydisplay {
   font-family: monospace;
   width: 600px;
-  overflow: scroll;
+  overflow-x: scroll;
+  overflow-y: hidden;
 }
 
 .field_value {
