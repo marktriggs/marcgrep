@@ -176,11 +176,11 @@ function clause_to_obj(clause) {
     var value = false;
     var valueNode = $(clause).find('.field_value');
     if (!valueNode.attr('disabled')) {
-        value = valueNode.val();
+        value = $.trim(valueNode.val());
     }
 
     subquery = {"operator" : $(clause).find('.operator').val(),
-                "field" : $(clause).find('.target_field:first').val(),
+                "field" : $.trim($(clause).find('.target_field:first').val()),
                 "value" : value};
 
     if (subquery['field']) {
@@ -324,7 +324,7 @@ function extract_output_options()
 {
     var options = {}
     $('.input_field:visible').each(function(idx, field) {
-        options[$(field).attr('name')] = $(field).val();
+        options[$(field).attr('name')] = $.trim($(field).val());
     });
 
     return JSON.stringify(options);
