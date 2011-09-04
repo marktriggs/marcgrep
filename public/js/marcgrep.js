@@ -276,6 +276,8 @@ function get_job_list()
 
                 if (job['file-available']) {
                     row.append('<td><a href="job_output/' + job['id'] + '">Download output</a></td>');
+                } else {
+                    row.append('<td>&nbsp;</td>');
                 }
 
                 var delete_button = $('<input class="delete_job" type="button" value="delete"/>');
