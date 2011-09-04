@@ -9,6 +9,9 @@
            [java.util.concurrent LinkedBlockingQueue]))
 
 
+(def batch-size 64)
+
+
 (defn filter-nla-record [^Record record]
   (doseq [vf (.getVariableFields record)]
     (when (= (.getTag ^VariableField vf) "vuf")
@@ -26,17 +29,21 @@
 
 (defn worker-job [ir ids queue running?]
   (future
-    (doseq [id ids
+    (doseq [batch (partition-all batch-size ids)
             :while @running?]
-      (when-not (.isDeleted ir id)
-        (let [doc (.document ir id)]
-          (.put queue
-                (->
-                 (.next (MarcXmlReader.
-                         (ByteArrayInputStream.
-                          (.getBytes (first (.getValues doc "fullrecord"))
-                                     "UTF-8"))))
-                 (filter-nla-record))))))
+      (let [in (MarcXmlReader.
+                (ByteArrayInputStream.
+                 (.getBytes (str "<collection>"
+                                 (apply str (keep (fn [id]
+                                                    (when-not (.isDeleted ir id)
+                                                      (let [doc (.document ir id)]
+                                                        (first (.getValues doc "fullrecord")))))
+                                                  batch))
+                                 "</collection>")
+                            "UTF-8")))]
+        (while (.hasNext in)
+          (.put queue (-> (.next in)
+                          (filter-nla-record))))))
     (when @running?
       (.put queue :eof))
     (.println System/err "NLA record reader finished")))
