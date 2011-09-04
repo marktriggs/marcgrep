@@ -1,6 +1,6 @@
 (ns marcgrep.backends.nla
-  (:use [marcgrep.core :only [MarcSource]]
-        [clojure.java.io])
+  (:use marcgrep.protocols
+        clojure.java.io)
   (:import [org.marc4j MarcXmlReader]
            [org.marc4j.marc Record VariableField]
            [java.io BufferedReader ByteArrayInputStream]

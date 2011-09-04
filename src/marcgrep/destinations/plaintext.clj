@@ -1,6 +1,6 @@
 (ns marcgrep.destinations.plaintext
-  (:use [marcgrep.core :only [MarcDestination]]
-        [clojure.java.io])
+  (:use marcgrep.protocols
+        clojure.java.io)
   (:import [org.marc4j.marc Record VariableField DataField ControlField Subfield]
            [java.io BufferedWriter FileOutputStream]))
 

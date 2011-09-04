@@ -1,17 +1,18 @@
 (ns marcgrep.core
-  (:use compojure.core
+  (:use marcgrep.config
+        marcgrep.protocols
+        compojure.core
         [clojure.string :only [join]]
         clojure.java.io
         clojure.contrib.json)
   (:import [org.marc4j MarcXmlReader]
-           [org.marc4j.marc
-            Record VariableField DataField
-            ControlField Subfield]
-           [java.io BufferedReader PushbackReader ByteArrayInputStream
-            FileOutputStream]
+           [org.marc4j.marc Record VariableField DataField ControlField
+            Subfield]
+           [java.io BufferedReader ByteArrayInputStream FileOutputStream]
            [java.util Date]
            [java.util.concurrent LinkedBlockingQueue])
-  (:require [compojure.route :as route]
+  (:require [marcgrep.predicates :as predicates]
+            [compojure.route :as route]
             [compojure.handler :as handler]
             [ring.adapter.jetty :as jetty]
             [ring.middleware.params :as params]
@@ -19,105 +20,43 @@
   (:gen-class))
 
 
+;;; The list of currently known jobs
 (def job-queue (atom []))
-(def config (atom {}))
+
+;;; The registered output plugins.
 (def destinations (atom []))
 
-(defn matching-fields [^Record record fieldspec]
-  (filter (fn [^VariableField field]
-            (and
-             (= (.getTag field) (:tag fieldspec))
-             (or (re-matches (:controlfield-pattern @config) (:tag fieldspec))
-                 (or (not (:ind1 fieldspec))
-                     (= (.getIndicator1 ^DataField field)
-                        (:ind1 fieldspec)))
-                 (or (not (:ind2 fieldspec))
-                     (= (.getIndicator2 ^DataField field)
-                        (:ind2 fieldspec))))))
-          (.getVariableFields record)))
+
+(defn register-destination [opts]
+  (swap! destinations conj opts))
 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Utilities
+;;;
 
-(defn field-values [^Record record fieldspec]
-  (if (re-matches (:controlfield-pattern @config) (:tag fieldspec))
-    [(.getData ^ControlField (.getVariableField record (:tag fieldspec)))]
-    (when-let [fields (seq (matching-fields record fieldspec))]
-      (map (fn [^DataField field]
-             (let [subfield-list (if (:subfields fieldspec)
-                                   (mapcat #(.getSubfields field %) (:subfields fieldspec))
-                                   (.getSubfields field))]
-               (join " " (map #(.getData ^Subfield %) subfield-list))))
-           fields))))
-
-
-(defn record-contains? [record fieldspec value]
-  (some (fn [^String fv]
-          (>= (.indexOf (.toLowerCase fv)
-                        value)
-              0))
-        (field-values record fieldspec)))
+(defmacro print-errors [& body]
+  `(try ~@body
+        (catch Throwable ex#
+          (.printStackTrace ex#))))
 
 
 
-(defn record-does-not-contain? [record fieldspec value]
-  (when-let [fields (field-values record fieldspec)]
-    (not-any? (fn [^String fv]
-                (>= (.indexOf (.toLowerCase fv)
-                              value)
-                    0))
-              (field-values record fieldspec))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Query parsing
+;;;
 
-
-(defn record-equals? [record fieldspec value]
-  (some (fn [^String fv] (.equalsIgnoreCase fv value))
-        (field-values record fieldspec)))
-
-(defn record-not-equals? [record fieldspec value]
-  (when-let [fields (field-values record fieldspec)]
-    (not-any? (fn [^String fv] (.equalsIgnoreCase fv value))
-              (field-values record fieldspec))))
-
-
-
-(defn record-exists? [record fieldspec _]
-  (field-values record fieldspec))
-
-(def record-not-exists? (complement record-exists?))
-
-
-(defn record-matches? [record fieldspec value]
-  (some (fn [^String fv] (.matches (.matcher (re-pattern value)
-                                     (.toLowerCase fv))))
-        (field-values record fieldspec)))
-
-
-(defn record-not-matches? [record fieldspec value]
-  (when-let [fields (field-values record fieldspec)]
-    (not-any? (fn [^String fv]
-                (.matches (.matcher (re-pattern value)
-                                    (.toLowerCase fv))))
-              fields)))
-
-(defn record-has-repeating-fields? [record fieldspec value]
-  (> (count (matching-fields record fieldspec))
-     1))
-
-(defn record-does-not-repeat-field? [record fieldspec value]
-  (= (count (matching-fields record fieldspec))
-     1))
-
-
-(def predicates {"contains" record-contains?
-                 "does_not_contain" record-does-not-contain?
-                 "equals" record-equals?
-                 "not_equals" record-not-equals?
-                 "exists" record-exists?
-                 "does_not_exist" record-not-exists?
-                 "matches_regexp" record-matches?
-                 "does_not_match_regexp" record-not-matches?
-                 "repeats_field" record-has-repeating-fields?
-                 "does_not_repeat_field" record-does-not-repeat-field?
+(def predicates {"contains" predicates/contains?
+                 "does_not_contain" predicates/does-not-contain?
+                 "equals" predicates/equals?
+                 "not_equals" predicates/not-equals?
+                 "exists" predicates/exists?
+                 "does_not_exist" predicates/not-exists?
+                 "matches_regexp" predicates/matches?
+                 "does_not_match_regexp" predicates/not-matches?
+                 "repeats_field" predicates/has-repeating-fields?
+                 "does_not_repeat_field" predicates/does-not-repeat-field?
                  })
 
 
@@ -160,72 +99,64 @@
          value)))))
 
 
-(defprotocol MarcSource
-  (init [this])
-  (next [this])
-  (close [this]))
 
-
-
-(defn run-worker [id jobs outputs queue]
-  (future
-    (try
-      (loop []
-        (let [record (.take queue)]
-          (if (= record :eof)
-            (.put queue :eof)
-            (when-let [jobs (seq (filter (fn [job] (not= (:status @job) :deleted))
-                                         jobs))]
-              (doseq [job jobs]
-                (swap! job update-in [:records-checked] inc)
-                (when ((:query @job) record)
-                  (swap! job update-in [:hits] inc)
-                  (locking (outputs job)
-                    (.write (outputs job) record))))
-              (recur)))))
-      (catch Throwable ex
-        (.printStackTrace ex)))))
-
-
-
-(defprotocol MarcDestination
-  (init [this])
-  (getInputStream [this jobid])
-  (write [this record])
-  (close [this]))
-
-(defn register-destination [opts]
-  (swap! destinations conj opts))
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Job control
+;;;
 
 (def job-runner (agent []))
 
-(defn run-jobs [jobs]
+
+(defn run-worker
+  "Run a thread that polls 'queue' for records to process.  Applies each job's
+predicate to each record and sends matches to the appropriate destination."
+  [id jobs outputs ^LinkedBlockingQueue queue]
+  (future
+    (print-errors
+     (loop []
+       (let [record (.take queue)]
+         (if (= record :eof)
+           ;; Finished.  Push the :eof back for other workers to see.
+           (.put queue :eof)
+           (when-let [jobs (seq (filter (fn [job] (not= (:status @job) :deleted))
+                                        jobs))]
+             (doseq [job jobs]
+               (swap! job update-in [:records-checked] inc)
+               (when ((:query @job) record)
+                 (swap! job update-in [:hits] inc)
+                 (locking (outputs job)
+                   (.write ^marcgrep.protocols.MarcDestination (outputs job) record))))
+             (recur))))))))
+
+
+(defn run-jobs
+  "Run a list of jobs.  Spread the work across a bunch of workers and take care
+of gathering up and collating their results."
+  [jobs]
   (let [outputs (into {} (map (fn [job]
                                 [job ((-> @job :destination
                                           :get-destination-for)
                                       config
                                       job)])
-                              jobs))]
+                              jobs))
+        queue (LinkedBlockingQueue. 512)
+        workers (doall (map #(run-worker % jobs outputs queue)
+                            (range (:worker-threads @config))))]
+    (with-open [^marcgrep.protocols.MarcSource marc-records ((ns-resolve (:marc-backend @config )
+                                                      'all-marc-records)
+                                          config)]
 
-    (let [queue (LinkedBlockingQueue. 512)
-          workers (doall
-                   (map #(run-worker % jobs outputs queue)
-                        (range (:worker-threads @config))))]
+      ;; Push records onto our queue until we either run out of records or all
+      ;; of our workers have called it quits.
+      (loop []
+        (if (every? future-done? workers)
+          nil                           ; slackers!
+          (if-let [record (.next marc-records)]
+            (do (.put queue record)
+                (recur))
+            (.put queue :eof)))))
 
-      (with-open [marc-records ((ns-resolve (:marc-backend @config )
-                                            'all-marc-records)
-                                config)]
-        (doseq [record (take-while (fn [record]
-                                     (and (not-every? future-done? workers)
-                                          record))
-                                   (repeatedly #(.next marc-records)))]
-          (.put queue record))
-
-        (when (not-every? future-done? workers)
-          (.put queue :eof)))
-
-      (doseq [worker workers] @worker))
+    (doseq [worker workers] @worker)
 
     (doseq [job jobs]
       ;; close the output file and make it available
@@ -236,32 +167,37 @@
       (swap! job assoc :status :completed))))
 
 
-(defn schedule-job-run [current-jobs]
-  (try
-    (while (>= (count (filter (complement future-done?) current-jobs))
-               (:max-concurrent-jobs @config))
-      ;; sit around and wait for a job to finish
-      (doseq [job (filter #(= (:status @%) :not-started) @job-queue)]
-        (swap! job assoc :status :waiting))
-      (Thread/sleep 5000))
+(defn schedule-job-run
+  "Register our interest in running the current job queue.  If we're already
+running as many jobs as we're allowed, wait for an existing run to finish."
+  [current-jobs]
 
-    ;; Snapshot the job queue and mark those jobs as running
-    (when-let [jobs (seq (filter #(#{:not-started :waiting} (:status @%))
-                                 @job-queue))]
-      (doseq [job jobs] (swap! job assoc :status :running))
+  (print-errors
+   (while (>= (count (filter (complement future-done?) current-jobs))
+              (:max-concurrent-jobs @config))
+     ;; sit around and wait for a job to finish
+     (doseq [job (filter #(= (:status @%) :not-started) @job-queue)]
+       (swap! job assoc :status :waiting))
+     (Thread/sleep 5000))
 
-      ;; and add the running job to the run queue
-      (cons (future
-              (try (run-jobs jobs)
-                   (catch Throwable ex
-                     (.printStackTrace ex))))
-            (filter (complement future-done?) current-jobs)))
-    (catch Throwable ex
-      (.printStackTrace ex))))
+   ;; Snapshot the job queue and mark those jobs as running
+   (when-let [jobs (seq (filter #(#{:not-started :waiting} (:status @%))
+                                @job-queue))]
+     (doseq [job jobs] (swap! job assoc :status :running))
 
+     ;; and add the running job to the run queue
+     (cons (future (print-errors (run-jobs jobs)))
+           (filter (complement future-done?) current-jobs)))))
 
 
-(defn add-job [query destination field-options]
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Web UI
+;;;
+
+(defn add-job
+  "Add a new job to the job queue"
+  [query destination field-options]
   (when query
     (swap! job-queue conj
            (atom {:query (compile-query query)
@@ -278,28 +214,37 @@
   "Added")
 
 
-(defn get-job [id]
+(defn get-job
+  "Return the job whose ID is 'id'"
+  [id]
   (some (fn [job] (when (= (:id @job) id)
-                    job)) @job-queue))
+                    job))
+        @job-queue))
 
 
-(defn delete-job [id]
+(defn delete-job
+  "Delete the job whose ID is 'id'"
+  [id]
   (let [job (get-job id)]
     (when (:file @job)
       (.delete (:file @job)))
 
     (swap! job assoc :status :deleted)
-
     (swap! job-queue #(remove #{job} %)))
   id)
 
 
+;;; Mapping from our various statuses to descriptive text.
 (def status-text {:not-started "Not started"
                   :waiting "Waiting to run"
                   :running "Running"
                   :completed "Finished!"})
 
-(defn render-job-list []
+
+
+(defn render-job-list
+  "The current job list in JSON format"
+  []
   {:headers {"Content-type" "application/json"}
    :body (json-str {:jobs (map (fn [job]
                                  {:id (:id @job)
@@ -312,8 +257,9 @@
                                @job-queue)})})
 
 
-
-(defn serve-file [id]
+(defn serve-file
+  "Handle a request for the output file of job 'id'."
+  [id]
   (let [job (get-job id)]
     {:headers {"Content-disposition" (format "attachment; filename=%s.txt"
                                              id)}
@@ -322,7 +268,9 @@
             job)}))
 
 
-(defn render-destination-options []
+(defn render-destination-options
+  "The current list of output options in JSON format."
+  []
   {:headers {"Content-type" "application/json"}
    :body (json-str (map (fn [destination]
                           (into {}
@@ -332,7 +280,9 @@
                         @destinations))})
 
 
-(defn handle-add-job [request]
+(defn handle-add-job
+  "Add a new job to the job queue."
+  [request]
   (add-job (read-json (:query (:params request)))
            (try (@destinations
                  (Integer. (:destination
@@ -355,8 +305,9 @@
 
 (def ^:dynamic *app* (-> #'main-routes params/wrap-params))
 
+
 (defn -main []
-  (reset! config (read (PushbackReader. (reader "config.clj"))))
+  (load-config-from-file "config.clj")
 
   (require (:marc-backend @config))
   (doseq [destination (:marc-destination-list @config)]
