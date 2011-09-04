@@ -27,8 +27,7 @@
   (.write out "\n"))
 
 
-(deftype PlaintextDestination [^{:unsynchronized-mutable true :tag BufferedWriter} writer
-                               included-fields]
+(deftype PlaintextDestination [^BufferedWriter writer included-fields]
   MarcDestination
   (init [this])
   (write [this record] (write-pretty-record record writer included-fields))

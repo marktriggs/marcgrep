@@ -6,7 +6,7 @@
            [java.io FileOutputStream]))
 
 
-(deftype MarcFileDestination [^{:unsynchronized-mutable true :tag MarcStreamWriter} writer]
+(deftype MarcFileDestination [^MarcStreamWriter writer]
   MarcDestination
   (init [this])
   (write [this record]

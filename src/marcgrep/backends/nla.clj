@@ -52,7 +52,6 @@
 
 
 (deftype NLASolrRecord [^{:unsynchronized-mutable true :tag IndexReader} ir
-                        ^{:unsynchronized-mutable true :tag long} nextdoc
                         index-path
                         ^{:unsynchronized-mutable true} queue
 
@@ -85,7 +84,6 @@
 
 (defn all-marc-records [config]
   (let [marc-records (NLASolrRecord. nil
-                                     0
                                      (:solr-index @config)
                                      nil nil nil nil)]
     (.init marc-records)

@@ -6,7 +6,7 @@
            [org.marc4j.marc Record VariableField]
            [java.io BufferedReader ByteArrayInputStream]))
 
-(deftype MarcFile [^{:unsynchronized-mutable true :tag String} filename
+(deftype MarcFile [^String filename
                    ^{:unsynchronized-mutable true :tag MarcXmlReader} rdr]
   MarcSource
   (init [this]
