@@ -37,7 +37,9 @@
                                  (apply str (keep (fn [id]
                                                     (when-not (.isDeleted ir id)
                                                       (let [doc (.document ir id)]
-                                                        (first (.getValues doc "fullrecord")))))
+                                                        (subs (first (.getValues doc "fullrecord"))
+                                                              ;; drops the leading: <?xml version="1.0" encoding="utf-8"?>
+                                                              38))))
                                                   batch))
                                  "</collection>")
                             "UTF-8")))]
