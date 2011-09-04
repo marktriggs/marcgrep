@@ -16,8 +16,8 @@
     <img class="logo" src="logo.png" />
 
     <p>This is a tool for extracting all of the MARC records that match
-    some given criteria.  To get started, define the criteria of interest below and
-    submit your job to the system.</p>
+      some given criteria.  To get started, define the criteria of interest below and
+      submit your job to the system.</p>
 
     <select class="boolean_options" style="display: none">
       <option value="AND">AND</option>
@@ -109,28 +109,28 @@
       <!-- Wire up the buttons -->
       $('.preview_query').click(function (elt) {
           $('.querysection').dialog({width : 650, height: 650});
-       });
+      });
 
 
       $('.and_button').click(function (elt) {
           add_clause(elt, "AND");
-       });
+      });
 
       $('.or_button').click(function (elt) {
           add_clause(elt, "OR");
-       });
+      });
 
       $('.group_button').click(function (elt) {
           merge_groups();
-       });
+      });
 
       $('.ungroup_button').click(function (elt) {
           split_groups();
-       });
+      });
 
       $('.remove_button').click(function (elt) {
           remove_groups();
-       });
+      });
 
 
       $(':button').click(function (elt) { update_form(); });
@@ -138,23 +138,23 @@
       $('select').change(function (elt) { update_form(); });
 
       $('#submit').click(function (elt) {
-        var query = generate_query();
-        $.ajax({
-          "type" : "POST",
-          "url" : "add_job",
-          "data" : {"query" : query,
-                    "field-options" : extract_output_options(),
-                    "destination" : $('#selected_output').val()},
-          "success" : function() {
-            get_job_list();
-          }
-        });
+          var query = generate_query();
+          $.ajax({
+              "type" : "POST",
+              "url" : "add_job",
+              "data" : {"query" : query,
+                        "field-options" : extract_output_options(),
+                        "destination" : $('#selected_output').val()},
+              "success" : function() {
+                  get_job_list();
+              }
+          });
       });
 
 
       $('.bombs_away').click(function (elt) {
           run_jobs();
-       });
+      });
 
 
       update_form();
