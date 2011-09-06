@@ -80,7 +80,6 @@
             [:ind1 :ind2])))
 
 
-
 (defn compile-query [query]
   (if (:boolean query)
     (let [left-fn (compile-query (:left query))

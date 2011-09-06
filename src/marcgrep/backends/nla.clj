@@ -9,6 +9,7 @@
            [java.util.concurrent LinkedBlockingQueue]))
 
 
+(def thread-count 3)
 (def batch-size 64)
 
 
@@ -27,33 +28,34 @@
                        FieldSelectorResult/NO_LOAD))))
 
 
-(defn worker-job [ir ids queue running?]
-  (future
-    (doseq [batch (partition-all batch-size ids)
-            :while @running?]
-      (let [in (MarcXmlReader.
-                (ByteArrayInputStream.
-                 (.getBytes (str "<collection>"
-                                 (apply str (keep (fn [id]
-                                                    (when-not (.isDeleted ir id)
-                                                      (let [doc (.document ir id)]
-                                                        (subs (first (.getValues doc "fullrecord"))
-                                                              ;; drops the leading: <?xml version="1.0" encoding="utf-8"?>
-                                                              38))))
-                                                  batch))
-                                 "</collection>")
-                            "UTF-8")))]
-        (while (.hasNext in)
-          (.put queue (-> (.next in)
-                          (filter-nla-record))))))
-    (when @running?
-      (.put queue :eof))
-    (.println System/err "NLA record reader finished")))
+(defn worker-job [^IndexReader ir ids ^LinkedBlockingQueue queue running?]
+  (Thread.
+   (fn []
+     (doseq [batch (partition-all batch-size ids)
+             :while @running?]
+       (let [in (MarcXmlReader.
+                 (ByteArrayInputStream.
+                  (.getBytes (str "<collection>"
+                                  (apply str (keep (fn [id]
+                                                     (when-not (.isDeleted ir id)
+                                                       (let [doc (.document ir id)]
+                                                         (subs (first (.getValues doc "fullrecord"))
+                                                               ;; drops the leading: <?xml version="1.0" encoding="utf-8"?>
+                                                               38))))
+                                                   batch))
+                                  "</collection>")
+                             "UTF-8")))]
+         (while (.hasNext in)
+           (.put queue (-> (.next in)
+                           (filter-nla-record))))))
+     (when @running?
+       (.put queue :eof))
+     (.println System/err "NLA record reader finished"))))
 
 
 (deftype NLASolrRecord [^{:unsynchronized-mutable true :tag IndexReader} ir
                         index-path
-                        ^{:unsynchronized-mutable true} queue
+                        ^{:unsynchronized-mutable true :tag LinkedBlockingQueue} queue
 
                         ^{:unsynchronized-mutable true} running?
                         ^{:unsynchronized-mutable true} reader-threads
@@ -66,9 +68,9 @@
     (set! finished-readers (atom 0))
     (let [maxdoc (.maxDoc ir)]
       (set! reader-threads
-            (doall (map (fn [ids] (worker-job ir ids queue running?))
-                        [(range 0 (quot maxdoc 2))
-                         (range (quot maxdoc 2) maxdoc)])))))
+            (doall (map (fn [ids] (.start (worker-job ir ids queue running?)))
+                        (partition-all (Math/ceil (/ maxdoc thread-count))
+                                       (range 0 maxdoc)))))))
   (next [this]
     (when (< @finished-readers (count reader-threads))
       (let [next-record (.take queue)]
