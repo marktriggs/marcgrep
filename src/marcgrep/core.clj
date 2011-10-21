@@ -53,8 +53,10 @@
                  "not_equals" predicates/not-equals?
                  "exists" predicates/exists?
                  "does_not_exist" predicates/not-exists?
-                 "matches_regexp" predicates/matches?
-                 "does_not_match_regexp" predicates/not-matches?
+                 "matches_regexp" [predicates/matches?
+                                   {:case-sensitive true}]
+                 "does_not_match_regexp" [predicates/not-matches?
+                                          {:case-sensitive true}]
                  "repeats_field" predicates/has-repeating-fields?
                  "does_not_repeat_field" predicates/does-not-repeat-field?
                  })
@@ -88,11 +90,15 @@
         (fn [record] (or (left-fn record) (right-fn record)))
         (fn [record] (and (left-fn record) (right-fn record)))))
 
-    (let [value (when (:value query)
+    (let [[predicate options] (if (vector? (predicates (:operator query)))
+                                (predicates (:operator query))
+                                [(predicates (:operator query))])
+          value (if (:case-sensitive options)
+                  (:value query)
                   (.toLowerCase (:value query)))
           fieldspec (parse-marc-field (:field query))]
       (fn [record]
-        ((predicates (:operator query))
+        (predicate
          record
          fieldspec
          value)))))
