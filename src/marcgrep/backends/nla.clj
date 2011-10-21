@@ -28,29 +28,41 @@
                        FieldSelectorResult/NO_LOAD))))
 
 
-(defn worker-job [^IndexReader ir ids ^LinkedBlockingQueue queue running?]
+(defn worker-job [^IndexReader ir
+                  [start-id upper-id]
+                  ^LinkedBlockingQueue queue running?]
   (Thread.
    (fn []
-     (doseq [batch (partition-all batch-size ids)
-             :while @running?]
-       (let [in (MarcXmlReader.
-                 (ByteArrayInputStream.
-                  (.getBytes (str "<collection>"
-                                  (apply str (keep (fn [id]
-                                                     (when-not (.isDeleted ir id)
-                                                       (let [doc (.document ir id)]
-                                                         (subs (first (.getValues doc "fullrecord"))
-                                                               ;; drops the leading: <?xml version="1.0" encoding="utf-8"?>
-                                                               38))))
-                                                   batch))
-                                  "</collection>")
-                             "UTF-8")))]
-         (while (.hasNext in)
-           (.put queue (-> (.next in)
-                           (filter-nla-record))))))
+     (loop [id start-id]
+       (when (and @running? (< id upper-id))
+         (let [last-id (Math/min (+ id batch-size) upper-id)]
+           (let [in (MarcXmlReader.
+                     (ByteArrayInputStream.
+                      (.getBytes (str "<collection>"
+                                      (apply str (keep (fn [id]
+                                                         (when-not (.isDeleted ir id)
+                                                           (let [doc (.document ir id)]
+                                                             (subs (first (.getValues doc "fullrecord"))
+                                                                   ;; drops the leading: <?xml version="1.0" encoding="utf-8"?>
+                                                                   38))))
+                                                       (range id last-id)))
+                                      "</collection>")
+                                 "UTF-8")))]
+             (while (.hasNext in)
+               (.put queue (-> (.next in)
+                               (filter-nla-record)))))
+           (recur last-id))))
      (when @running?
        (.put queue :eof))
      (.println System/err "NLA record reader finished"))))
+
+
+(defn ranges
+  "Split the range of numbers from 0-upper into N roughly equal runs."
+  [upper n]
+  (let [size (quot upper n)]
+    (partition 2 1 (concat (butlast (range 0 (inc upper) size))
+                           [upper]))))
 
 
 (deftype NLASolrRecord [^{:unsynchronized-mutable true :tag IndexReader} ir
@@ -68,9 +80,9 @@
     (set! finished-readers (atom 0))
     (let [maxdoc (.maxDoc ir)]
       (set! reader-threads
-            (doall (map (fn [ids] (.start (worker-job ir ids queue running?)))
-                        (partition-all (Math/ceil (/ maxdoc thread-count))
-                                       (range 0 maxdoc)))))))
+            (doall (map (fn [id-range]
+                          (.start (worker-job ir id-range queue running?)))
+                        (ranges maxdoc thread-count))))))
   (next [this]
     (when (< @finished-readers (count reader-threads))
       (let [next-record (.take queue)]
