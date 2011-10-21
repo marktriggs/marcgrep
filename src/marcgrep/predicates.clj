@@ -68,7 +68,7 @@
 
 (defn matches? [record fieldspec value]
   (some (fn [^String fv] (.matches (.matcher (re-pattern value)
-                                             (.toLowerCase fv))))
+                                             fv)))
         (field-values record fieldspec)))
 
 
@@ -76,7 +76,7 @@
   (when-let [fields (field-values record fieldspec)]
     (not-any? (fn [^String fv]
                 (.matches (.matcher (re-pattern value)
-                                    (.toLowerCase fv))))
+                                    fv)))
               fields)))
 
 
