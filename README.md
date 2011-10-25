@@ -1,3 +1,6 @@
+What does it do?
+----------------
+
 MARCgrep lets you find all the records in a library collection
 matching some criteria.  It searches MARC records in the dumbest way
 possible: parsing them one at a time and returning any that match.
@@ -9,8 +12,23 @@ reading records from a file or a Lucene index, and writing to either
 MARC21 or plain text, but I'd be happy to lend a hand if you have
 grand ideas.
 
+
+How slow is "slow-moving"?
+--------------------------
+
+Not as slow as you might think.  By pre-compiling your queries into
+fairly efficient Java bytecode and splitting the MARC record parsing
+and matching across a couple of CPUs, MARCgrep's naïve approach
+actually performs pretty well.  Limiting MARCgrep to 4 cores of a 3ghz
+Intel Xeon box, I can still check between ten and fifteen-thousand
+records per second.
+
+
+Screenshots
+-----------
+
 This is all a work in progress, but here's what the user interface
-current looks like:
+currently looks like:
 
 ![screenshot](https://github.com/marktriggs/marcgrep/raw/master/screenshot.png)
 
