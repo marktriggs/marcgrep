@@ -1,4 +1,4 @@
-(ns marcgrep.backends.file
+(ns marcgrep.backends.marcxml-file
   (:use marcgrep.protocols
         clojure.java.io)
   (:import [org.marc4j MarcXmlReader]
@@ -6,7 +6,7 @@
            [org.marc4j.marc Record VariableField]
            [java.io BufferedReader ByteArrayInputStream]))
 
-(deftype MarcFile [^String filename
+(deftype MARCXMLFile [^String filename
                    ^{:unsynchronized-mutable true :tag MarcXmlReader} rdr]
   MarcSource
   (init [this]
@@ -18,6 +18,6 @@
 
 
 (defn all-marc-records [config]
-  (let [marc-records (MarcFile. (:marc-file @config) nil)]
+  (let [marc-records (MARCXMLFile. (:marc-file @config) nil)]
     (.init marc-records)
     marc-records))
