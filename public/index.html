@@ -16,7 +16,8 @@
     <img class="logo" src="logo.png" />
 
     <p>This is a tool for extracting all of the MARC records that match
-      some given criteria.  To get started, define the criteria of interest below and
+      some given criteria.</p>
+    <p>To get started, define the criteria of interest below and
       submit your job to the system.</p>
 
     <select class="boolean_options" style="display: none">
@@ -28,16 +29,16 @@
       <h2><img class="step" src="1.png" /> Add jobs to the system</h2>
 
       <div class="button_container">
-        <input class="remove_button" type="button" value="remove"/>
-        <input class="group_button" type="button" value="group"/>
-        <input class="ungroup_button" type="button" value="ungroup"/>
+        <input id="remove_button"class="remove_button" type="button" value="remove"/>
+        <input id="group_button"class="group_button" type="button" value="group"/>
+        <input id="ungroup_button"class="ungroup_button" type="button" value="ungroup"/>
       </div>
 
       <h3>Define your query...</h3>
       <div class="define_query">
-        <div class="clause_group">
+        <div class="clause_group clause_group_style">
           <div class="where_clause">
-            <span class="boolean_label">Where</span>
+            <span class="label boolean_label">Where</span>
             <div class="clause">
               <span>the</span>
               <span class="target_field_container"></span>
@@ -83,7 +84,7 @@
         </div>
       </div>
 
-      <div class="submit_button">
+      <div id="submit_button" class="submit_button">
         <h3>Submit your job</h3>
         <input id="submit" type="button" value="Submit job"/>
       </div>
@@ -120,15 +121,15 @@
           add_clause(elt, "OR");
       });
 
-      $('.group_button').click(function (elt) {
+      $('#group_button').click(function (elt) {
           merge_groups();
       });
 
-      $('.ungroup_button').click(function (elt) {
+      $('#ungroup_button').click(function (elt) {
           split_groups();
       });
 
-      $('.remove_button').click(function (elt) {
+      $('#remove_button').click(function (elt) {
           remove_groups();
       });
 

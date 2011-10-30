@@ -3,6 +3,8 @@ body {
   margin-left: 1em;
   margin-right: 1em;
   width: 970px;
+  font-face: sans-serif;
+  line-height: 1.2em;
 }
 
 p { margin-bottom: 1em; }
@@ -46,7 +48,7 @@ h3:before {
     margin-right: 10px;
 }
 
-.boolean_label {
+.label {
     display: inline-block;
     width: 4em;
     font-weight: bold;
@@ -60,16 +62,20 @@ h3:before {
   overflow: auto;
 }
 
-.clause_group {
+.clause_group_style {
     border: solid white 4px;
     margin-left: 1em;
+}
+
+.group_indicator {
+    border-right: solid blue 4px;
 }
 
 .clause {
     display: inline;
 }
 
-.grouper_checkbox {
+.grouper_checkbox_style {
   float: right;
 }
 
@@ -103,7 +109,6 @@ h3:before {
 
 .submit_button {
   margin-top: 25px;
-  display: none;
 }
 
 #querydisplay {

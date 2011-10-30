@@ -46,7 +46,7 @@ function merge_groups() {
                 victim.find('.where_clause').each(function(idx, clause) {
                     borg.append(clone_clause(clause));
                 });
-                borg.css('border-right', 'solid blue 4px');
+                borg.addClass('group_indicator');
                 victim.remove();
                 update_form();
             });
@@ -87,24 +87,24 @@ function update_buttons() {
     var checked = $('.grouper_checkbox:checked');
 
     if (checked.size() == 0) {
-        $('.remove_button').fadeOut();
-        $('.ungroup_button').fadeOut();
+        $('#remove_button').fadeOut();
+        $('#ungroup_button').fadeOut();
     } else {
-        $('.remove_button').fadeIn();
+        $('#remove_button').fadeIn();
     }
 
     checked.each(function(idx, elt) {
         var group = $(elt).parents('.clause_group');
         if ($(group).find('.where_clause').size() > 1) {
-            $('.ungroup_button').fadeIn();
+            $('#ungroup_button').fadeIn();
             return;
         }
     })
 
         if (checked.size() > 1) {
-            $('.group_button').fadeIn();
+            $('#group_button').fadeIn();
         } else {
-            $('.group_button').fadeOut();
+            $('#group_button').fadeOut();
         }
 }
 
@@ -122,7 +122,7 @@ function update_form() {
     var groups = $('.clause_group');
 
     groups.each(function(idx, group) {
-        var checkbox = $('<input class="grouper_checkbox" type="checkbox" />');
+        var checkbox = $('<input class="grouper_checkbox grouper_checkbox_style" type="checkbox" />');
         checkbox.click(function(checkbox) {
             update_buttons();
         });
@@ -131,11 +131,11 @@ function update_form() {
 
     update_buttons();
     if (generate_query()) {
-        $('.preview_query').fadeIn();
-        $('.submit_button').fadeIn();
+        $('#preview_query').fadeIn();
+        $('#submit_button #submit').removeAttr('disabled');
     } else {
-        $('.submit_button').fadeOut();
-        $('.preview_query').fadeOut();
+        $('#submit_button #submit').attr('disabled', 'disabled');
+        $('#preview_query').fadeOut();
     }
 }
 
@@ -166,7 +166,7 @@ function insert_clause(elt, after_elt) {
 
     after_elt.after(elt);
 
-    $(elt).wrap('<div class="clause_group" />');
+    $(elt).wrap('<div class="clause_group clause_group_style" />');
 
     update_form();
 }
