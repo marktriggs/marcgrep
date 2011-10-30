@@ -1,4 +1,4 @@
-(ns marcgrep.backends.marcxml-file
+(ns marcgrep.sources.marcxml-file
   (:use marcgrep.protocols
         clojure.java.io)
   (:import [org.marc4j MarcXmlReader]

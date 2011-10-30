@@ -148,7 +148,7 @@ of gathering up and collating their results."
         queue (LinkedBlockingQueue. 512)
         workers (doall (map #(run-worker % jobs outputs queue)
                             (range (:worker-threads @config))))]
-    (with-open [^marcgrep.protocols.MarcSource marc-records ((ns-resolve (:marc-backend @config )
+    (with-open [^marcgrep.protocols.MarcSource marc-records ((ns-resolve (:marc-source @config )
                                                       'all-marc-records)
                                           config)]
 
@@ -315,7 +315,7 @@ running as many jobs as we're allowed, wait for an existing run to finish."
 (defn -main []
   (load-config-from-file "config.clj")
 
-  (require (:marc-backend @config))
+  (require (:marc-source @config))
   (doseq [destination (:marc-destination-list @config)]
     (require destination))
 
