@@ -10,6 +10,11 @@
 
  :marc-destination-list [marcgrep.destinations.marcfile marcgrep.destinations.plaintext]
 
- :marc-source marcgrep.sources.nla
- :solr-index "/var/local/solr/data/index"
+ :marc-source-list [{:description "my test bibliographic data"
+                     :driver marcgrep.sources.marcxml-file
+                     :marc-file "/home/mst/test-records.xml"}
+
+                    {:description "some other file I found"
+                     :driver marcgrep.sources.marcxml-file
+                     :marc-file "/home/mst/tinyupdates.xml"}]
  }
