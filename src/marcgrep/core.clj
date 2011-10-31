@@ -203,11 +203,16 @@ running as many jobs as we're allowed, wait for an existing run to finish."
 
 (defn add-job
   "Add a new job to the job queue"
-  [query destination field-options]
+  [source destination query field-options]
   (when query
     (swap! job-queue conj
            (atom {:query (compile-query query)
+                  :source source
                   :destination destination
+                  :field-options field-options
+
+                  ;; internal use attributes...
+                  ;;
                   :submission-time (Date.)
                   :hits 0
                   :records-checked 0
@@ -215,7 +220,6 @@ running as many jobs as we're allowed, wait for an existing run to finish."
                   :file-ready? false
                   :status :not-started
                   :query-string query
-                  :field-options field-options
                   :id (str (gensym))})))
   "Added")
 
@@ -274,6 +278,17 @@ running as many jobs as we're allowed, wait for an existing run to finish."
             job)}))
 
 
+(defn render-source-options
+  "The current list of defined MARC sources in JSON format."
+  []
+  {:headers {"Content-type" "application/json"}
+   :body (json-str (map (fn [source]
+                          (into {}
+                                (map #(vector % (source %))
+                                     [:description])))
+                        (:marc-source-list @config)))})
+
+
 (defn render-destination-options
   "The current list of output options in JSON format."
   []
@@ -286,14 +301,20 @@ running as many jobs as we're allowed, wait for an existing run to finish."
                         @destinations))})
 
 
+(defn int-or-zero [s]
+  (try (Integer. s)
+       (catch NumberFormatException _ 0)))
+
+
 (defn handle-add-job
   "Add a new job to the job queue."
   [request]
-  (add-job (read-json (:query (:params request)))
-           (try (@destinations
-                 (Integer. (:destination
-                            (:params request))))
-                (catch NumberFormatException _ 0))
+  (add-job ((:sources @config)
+            (int-or-zero (:source (:params request))))
+           (@destinations
+            (int-or-zero (:destination
+                          (:params request))))
+           (read-json (:query (:params request)))
            (read-json (:field-options (:params request)))))
 
 
@@ -302,6 +323,7 @@ running as many jobs as we're allowed, wait for an existing run to finish."
   (POST "/delete_job" request (delete-job (:id (:params request))))
   (POST "/run_jobs" request (do (send-off job-runner #'schedule-job-run)
                                 "OK"))
+  (GET "/source_options" [id] (render-source-options))
   (GET "/destination_options" [id] (render-destination-options))
   (GET "/job_output/:id" [id] (serve-file id))
   (GET "/job_list" [] (render-job-list))
@@ -315,7 +337,9 @@ running as many jobs as we're allowed, wait for an existing run to finish."
 (defn -main []
   (load-config-from-file "config.clj")
 
-  (require (:marc-source @config))
+  (doseq [source (:marc-source-list @config)]
+    (require (:driver source)))
+
   (doseq [destination (:marc-destination-list @config)]
     (require destination))
 

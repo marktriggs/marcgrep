@@ -22,6 +22,10 @@ h1 {
 }
 
 
+.choose_source {
+    margin-left: 1em;
+}
+
 .step {
     width: 30px;
     margin-right: 10px;
@@ -39,7 +43,7 @@ h2 {
 h3 {
     font-weight: bold;
     font-size: 125%;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     margin-left: 10px;
 }
 
@@ -52,6 +56,10 @@ h3:before {
     display: inline-block;
     width: 4em;
     font-weight: bold;
+}
+
+.source_label {
+    width: auto;
 }
 
 .container {
@@ -125,6 +133,10 @@ h3:before {
 
 .choose_output {
     margin-top: 50px;
+}
+
+.source_options_style {
+  display: inline-block;
 }
 
 .output_options {

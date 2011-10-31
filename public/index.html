@@ -36,6 +36,13 @@
 
       <h3>Define your query...</h3>
       <div class="define_query">
+        <div class="choose_source">
+          <span class="label source_label">Find all the records in</span>
+          <div class="source_options source_options_style">
+          </div>
+
+        </div>
+
         <div class="clause_group clause_group_style">
           <div class="where_clause">
             <span class="label boolean_label">Where</span>
@@ -145,6 +152,7 @@
               "url" : "add_job",
               "data" : {"query" : query,
                         "field-options" : extract_output_options(),
+                        "source" : $('#selected_source').val(),
                         "destination" : $('#selected_output').val()},
               "success" : function() {
                   get_job_list();
@@ -162,6 +170,7 @@
 
       setInterval(function() { get_job_list(); }, 2000);
       get_job_list();
+      get_source_options();
       get_output_options();
     </script>
 

@@ -397,3 +397,22 @@ function get_output_options()
         }
     });
 }
+
+
+function get_source_options()
+{
+    $.ajax({
+        "type" : "GET",
+        "url" : "source_options",
+        "data" : {timestamp : get_timestamp()},
+        "success" : function(data) {
+            var source_selection = $('<select id="selected_source"></select>');
+            $('.source_options').append(source_selection);
+
+            $(data).each(function(idx, option) {
+                var option_elt = $('<option value="' + idx + '">' + option['description'] + '</option>');
+                source_selection.append(option_elt);
+            });
+        }
+    });
+}
