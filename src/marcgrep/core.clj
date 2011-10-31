@@ -1,4 +1,5 @@
 (ns marcgrep.core
+  (:refer-clojure :exclude [next])
   (:use marcgrep.config
         marcgrep.protocols
         compojure.core
@@ -99,10 +100,7 @@
                   (.toLowerCase (:value query)))
           fieldspec (parse-marc-field (:field query))]
       (fn [record]
-        (predicate
-         record
-         fieldspec
-         value)))))
+        (predicate record fieldspec value)))))
 
 
 
@@ -124,14 +122,16 @@ predicate to each record and sends matches to the appropriate destination."
          (if (= record :eof)
            ;; Finished.  Push the :eof back for other workers to see.
            (.put queue :eof)
-           (when-let [jobs (seq (filter (fn [job] (not= (:status @job) :deleted))
+           (when-let [jobs (seq (filter (fn [job] (not= (:status @job)
+                                                        :deleted))
                                         jobs))]
              (doseq [job jobs]
                (swap! job update-in [:records-checked] inc)
                (when ((:query @job) record)
                  (swap! job update-in [:hits] inc)
                  (locking (outputs job)
-                   (.write ^marcgrep.protocols.MarcDestination (outputs job) record))))
+                   (.write ^marcgrep.protocols.MarcDestination (outputs job)
+                           record))))
              (recur))))))))
 
 
