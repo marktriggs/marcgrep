@@ -250,6 +250,30 @@ function get_timestamp()
     return new Date().getTime();
 }
 
+
+function render_job(job)
+{
+    var table = $('<table class="query_summary" />');
+
+    var row = $('<tr />');
+    row.append('<th>Source:</th>')
+    row.append('<td>' + job['source'] + '</td>')
+    table.append(row)
+
+    var row = $('<tr />');
+    row.append('<th>Output:</th>')
+    row.append('<td>' + job['destination'] + '</td>')
+    table.append(row)
+
+    var row = $('<tr />');
+    row.append('<th>Clauses:</th>')
+    row.append('<td class="job_query">' +  JSON.stringify(job['query'], undefined, 4) + '</td>');
+    table.append(row)
+
+    return table;
+}
+
+
 function get_job_list()
 {
     $.ajax({
@@ -263,7 +287,7 @@ function get_job_list()
 
             $(data['jobs']).each(function(idx, job) {
                 var row = $('<tr class="job"></tr>');
-                row.append('<td class="query_column"><div class="job_query">' + JSON.stringify(job['query'], undefined, 4) + '</div></td>');
+                row.append($('<td class="query_column" />').append(render_job(job)));
                 row.append('<td>' + job['time'] + '</td>');
 
                 var status = job['status'];

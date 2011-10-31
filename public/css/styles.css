@@ -176,11 +176,16 @@ input#submit {
 }
 
 table#job_list {
-    width: 100%;
+    width: 95%;
+    margin-left: 1em;
     border-bottom: solid black 1px;
 }
 
-table#job_list th {
+table#job_list > tbody > tr > td {
+    font-size: 80%;
+}
+
+table#job_list > tbody > tr > th {
     text-align: left;
     font-weight: bold;
     border-top: solid black 2px;
@@ -193,7 +198,7 @@ table#job_list th {
     padding-right: 1em;
 }
 
-table#job_list td {
+table#job_list > tbody > tr > td {
     border-bottom: solid #cdcdcd 1px;
     padding-right: 1em;
     padding-top: 10px;
@@ -202,6 +207,12 @@ table#job_list td {
 
 table#job_list .query_column {
     padding-right: 1em;
+}
+
+table#job_list .query_summary th {
+    padding-left: 1em;
+    font-weight: bold;
+    text-align: right;
 }
 
 table#job_list .job_query {
