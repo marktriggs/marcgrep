@@ -138,7 +138,7 @@ predicate to each record and sends matches to the appropriate destination."
 (defn run-jobs
   "Run a list of jobs.  Spread the work across a bunch of workers and take care
 of gathering up and collating their results."
-  [jobs]
+  [jobs source]
   (let [outputs (into {} (map (fn [job]
                                 [job ((-> @job :destination
                                           :get-destination-for)
@@ -148,9 +148,7 @@ of gathering up and collating their results."
         queue (LinkedBlockingQueue. 512)
         workers (doall (map #(run-worker % jobs outputs queue)
                             (range (:worker-threads @config))))]
-    (with-open [^marcgrep.protocols.MarcSource marc-records ((ns-resolve (:marc-source @config )
-                                                      'all-marc-records)
-                                          config)]
+    (with-open [^marcgrep.protocols.MarcSource marc-records source]
 
       ;; Push records onto our queue until we either run out of records or all
       ;; of our workers have called it quits.
@@ -173,6 +171,11 @@ of gathering up and collating their results."
       (swap! job assoc :status :completed))))
 
 
+(defn list-ready-jobs []
+  (seq (filter #(#{:not-started :waiting} (:status @%))
+               @job-queue)))
+
+
 (defn schedule-job-run
   "Register our interest in running the current job queue.  If we're already
 running as many jobs as we're allowed, wait for an existing run to finish."
@@ -186,26 +189,33 @@ running as many jobs as we're allowed, wait for an existing run to finish."
        (swap! job assoc :status :waiting))
      (Thread/sleep 5000))
 
-   ;; Snapshot the job queue and mark those jobs as running
-   (when-let [jobs (seq (filter #(#{:not-started :waiting} (:status @%))
-                                @job-queue))]
-     (doseq [job jobs] (swap! job assoc :status :running))
+   ;; To schedule the next batch of jobs, we pick the first job that is ready to
+   ;; run, plus all other jobs that will search the same source.
+   (when-let [jobs-ready-to-run (list-ready-jobs)]
+     (let [next-source-to-run (:source @(first jobs-ready-to-run))
+           jobs-to-run (filter #(= (:source @%) next-source-to-run)
+                               jobs-ready-to-run)
+           marc-source ((ns-resolve (:driver next-source-to-run)
+                                    'all-marc-records)
+                        next-source-to-run)]
 
-     ;; and add the running job to the run queue
-     (cons (future (print-errors (run-jobs jobs)))
-           (filter (complement future-done?) current-jobs)))))
+       (doseq [job jobs-to-run] (swap! job assoc :status :running))
 
+       ;; schedule another run to catch any remaining jobs that we haven't run
+       ;; in this round.
+       (send-off *agent* schedule-job-run)
 
+       ;; and add the running job to the run queue
+       (cons (future (print-errors (run-jobs jobs-to-run marc-source)))
+             (filter (complement future-done?) current-jobs))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Web UI
-;;;
 
 (defn add-job
   "Add a new job to the job queue"
   [source destination query field-options]
   (when query
-    (swap! job-queue conj
+    (swap! job-queue (fn [queue elt]
+                       (conj (vec queue) elt))
            (atom {:query (compile-query query)
                   :source source
                   :destination destination
@@ -244,6 +254,11 @@ running as many jobs as we're allowed, wait for an existing run to finish."
   id)
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Web UI
+;;;
+
+
 ;;; Mapping from our various statuses to descriptive text.
 (def status-text {:not-started "Not started"
                   :waiting "Waiting to run"
@@ -263,6 +278,8 @@ running as many jobs as we're allowed, wait for an existing run to finish."
                                   :hits (:hits @job)
                                   :records-checked (:records-checked @job)
                                   :file-available (:file-ready? @job)
+                                  :source (:description (:source @job))
+                                  :destination (:description (:destination @job))
                                   :query (:query-string @job)})
                                @job-queue)})})
 
@@ -309,7 +326,7 @@ running as many jobs as we're allowed, wait for an existing run to finish."
 (defn handle-add-job
   "Add a new job to the job queue."
   [request]
-  (add-job ((:sources @config)
+  (add-job ((:marc-source-list @config)
             (int-or-zero (:source (:params request))))
            (@destinations
             (int-or-zero (:destination

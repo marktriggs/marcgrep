@@ -18,6 +18,6 @@
 
 
 (defn all-marc-records [config]
-  (let [marc-records (MARCXMLFile. (:marc-file @config) nil)]
+  (let [marc-records (MARCXMLFile. (:marc-file config) nil)]
     (.init marc-records)
     marc-records))

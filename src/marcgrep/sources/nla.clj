@@ -98,7 +98,7 @@
 
 (defn all-marc-records [config]
   (let [marc-records (NLASolrRecord. nil
-                                     (:solr-index @config)
+                                     (:solr-index config)
                                      nil nil nil nil)]
     (.init marc-records)
     marc-records))
