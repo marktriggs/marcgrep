@@ -10,7 +10,7 @@ possible to extend MARCgrep to read your MARC records from any source
 and write them out in whatever format you like.  So far I've got it
 reading records from a file or a Lucene index, and writing to either
 MARC21 or plain text, but I'd be happy to lend a hand if you have
-grand ideas.
+grand ideas (like reading records from your ILMS system).
 
 
 How slow is "slow-moving"?
