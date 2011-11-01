@@ -176,6 +176,17 @@ of gathering up and collating their results."
                @job-queue)))
 
 
+(defn open-marc-source
+  "Prepare a MARC source for access.  This can either be the config entry for
+the source, or a ready-to-go MarcSource implementation."
+  [source]
+  (if (satisfies? MarcSource source)
+    (do (.init source)
+        source)
+    ((ns-resolve (:driver source) 'all-marc-records)
+     source)))
+
+
 (defn schedule-job-run
   "Register our interest in running the current job queue.  If we're already
 running as many jobs as we're allowed, wait for an existing run to finish."
@@ -195,9 +206,7 @@ running as many jobs as we're allowed, wait for an existing run to finish."
      (let [next-source-to-run (:source @(first jobs-ready-to-run))
            jobs-to-run (filter #(= (:source @%) next-source-to-run)
                                jobs-ready-to-run)
-           marc-source ((ns-resolve (:driver next-source-to-run)
-                                    'all-marc-records)
-                        next-source-to-run)]
+           marc-source (open-marc-source next-source-to-run)]
 
        (doseq [job jobs-to-run] (swap! job assoc :status :running))
 
@@ -214,24 +223,24 @@ running as many jobs as we're allowed, wait for an existing run to finish."
   "Add a new job to the job queue"
   [source destination query field-options]
   (when query
-    (swap! job-queue (fn [queue elt]
-                       (conj (vec queue) elt))
-           (atom {:query (compile-query query)
-                  :source source
-                  :destination destination
-                  :field-options field-options
+    (let [job (atom {:query (compile-query query)
+                     :source source
+                     :destination destination
+                     :field-options field-options
 
-                  ;; internal use attributes...
-                  ;;
-                  :submission-time (Date.)
-                  :hits 0
-                  :records-checked 0
-                  :file nil
-                  :file-ready? false
-                  :status :not-started
-                  :query-string query
-                  :id (str (gensym))})))
-  "Added")
+                     ;; internal use attributes...
+                     ;;
+                     :submission-time (Date.)
+                     :hits 0
+                     :records-checked 0
+                     :file nil
+                     :file-ready? false
+                     :status :not-started
+                     :query-string query
+                     :id (str (gensym))})]
+      (swap! job-queue (fn [queue elt] (conj (vec queue) elt))
+             job)
+      job)))
 
 
 (defn get-job
@@ -332,7 +341,8 @@ running as many jobs as we're allowed, wait for an existing run to finish."
             (int-or-zero (:destination
                           (:params request))))
            (read-json (:query (:params request)))
-           (read-json (:field-options (:params request)))))
+           (read-json (:field-options (:params request))))
+  "Added")
 
 
 (defroutes main-routes

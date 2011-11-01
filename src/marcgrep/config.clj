@@ -4,5 +4,19 @@
 
 (def config (atom {}))
 
+(def defaults {:worker-threads 2
+               :max-concurrent-jobs 1
+               :controlfield-pattern #"00[0-9]"})
+
+(defn load-config [rdr]
+  (reset! config (read (PushbackReader. rdr)))
+
+  ;; Set the defaults
+  (doseq [[k v] defaults]
+    (when-not (k @config)
+      (.println System/err (format "Warning: using default value (%s) for %s"
+                                   v k))
+      (swap! config assoc k v))))
+
 (defn load-config-from-file [file]
-  (reset! config (read (PushbackReader. (reader file)))))
+  (load-config (reader file)))
