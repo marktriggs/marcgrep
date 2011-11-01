@@ -108,7 +108,10 @@
 ;;; Job control
 ;;;
 
-(def job-runner (agent []))
+
+(def job-runner
+  "An agent that manages the job run queue."
+  (agent []))
 
 
 (defn run-worker
@@ -211,10 +214,10 @@ running as many jobs as we're allowed, wait for an existing run to finish."
        (doseq [job jobs-to-run] (swap! job assoc :status :running))
 
        ;; schedule another run to catch any remaining jobs that we haven't run
-       ;; in this round.
+       ;; in this round (if any).
        (send-off *agent* schedule-job-run)
 
-       ;; and add the running job to the run queue
+       ;; and add the new thread to the run queue
        (cons (future (print-errors (run-jobs jobs-to-run marc-source)))
              (filter (complement future-done?) current-jobs))))))
 
@@ -229,7 +232,6 @@ running as many jobs as we're allowed, wait for an existing run to finish."
                      :field-options field-options
 
                      ;; internal use attributes...
-                     ;;
                      :submission-time (Date.)
                      :hits 0
                      :records-checked 0
