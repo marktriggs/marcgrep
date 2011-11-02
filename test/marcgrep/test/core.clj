@@ -15,7 +15,7 @@
 
 
 (defn suite-setup [f]
-  (marcgrep.config/load-config (java.io.StringReader. "{:max-concurrent-jobs 1}"))
+  (marcgrep.config/load-config (java.io.StringReader. "{:max-concurrent-jobs 1 :poll-delay-ms 50}"))
   (f))
 
 

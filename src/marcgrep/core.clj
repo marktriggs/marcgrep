@@ -201,7 +201,7 @@ running as many jobs as we're allowed, wait for an existing run to finish."
      ;; sit around and wait for a job to finish
      (doseq [job (filter #(= (:status @%) :not-started) @job-queue)]
        (swap! job assoc :status :waiting))
-     (Thread/sleep 5000))
+     (Thread/sleep (:poll-delay-ms @config)))
 
    ;; To schedule the next batch of jobs, we pick the first job that is ready to
    ;; run, plus all other jobs that will search the same source.
