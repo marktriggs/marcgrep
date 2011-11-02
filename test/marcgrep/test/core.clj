@@ -93,3 +93,10 @@
     (doseq [dst [dest-1 dest-2 dest-3 dest-4]]
       @(:matched-ids dst))))
 
+
+(deftest exists-search
+  (the-query {:operator "exists"
+              :field "001"
+              :value true}
+             :on test-dataset
+             :matches ["12345" "23456"]))
