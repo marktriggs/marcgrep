@@ -21,7 +21,7 @@
 
 (defn get-destination-for [config job]
   (let [outfile (get-output-for config job)
-        outfh (MarcStreamWriter. (FileOutputStream. outfile))]
+        outfh (MarcStreamWriter. (FileOutputStream. outfile) "UTF-8")]
     (.deleteOnExit outfile)
     (MarcFileDestination. outfh)))
 
