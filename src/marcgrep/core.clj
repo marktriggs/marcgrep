@@ -93,7 +93,7 @@
     (let [[predicate options] (if (vector? (predicates (:operator query)))
                                 (predicates (:operator query))
                                 [(predicates (:operator query))])
-          value (if (or (not (string? query))
+          value (if (or (not (string? (:value query)))
                         (:case-sensitive options))
                   (:value query)
                   (.toLowerCase (:value query)))
