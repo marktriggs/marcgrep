@@ -93,7 +93,8 @@
     (let [[predicate options] (if (vector? (predicates (:operator query)))
                                 (predicates (:operator query))
                                 [(predicates (:operator query))])
-          value (if (:case-sensitive options)
+          value (if (or (not (string? query))
+                        (:case-sensitive options))
                   (:value query)
                   (.toLowerCase (:value query)))
           fieldspec (parse-marc-field (:field query))]
