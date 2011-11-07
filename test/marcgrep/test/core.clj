@@ -101,6 +101,13 @@
              :on test-dataset
              :matches ["12345" "23456"]))
 
+(deftest non-existent-control-field
+  (the-query {:operator "contains"
+              :field "007"
+              :value "hello"}
+             :on test-dataset
+             :does-not-match ["12345" "23456"]))
+
 (deftest all-fields-search
   (the-query {:operator "contains"
               :field "*"
@@ -108,3 +115,4 @@
              :on test-dataset
              :matches ["12345"]
              :does-not-match ["23456"]))
+
