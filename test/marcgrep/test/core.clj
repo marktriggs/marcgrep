@@ -55,6 +55,13 @@
              :on test-dataset
              :does-not-match ["12345"]))
 
+(deftest regexp-search-finds-substring
+  (the-query {:operator "matches_regexp"
+              :field "245$a"
+              :value "hello"}
+             :on test-dataset
+             :matches ["12345"]))
+
 
 (deftest sources-are-batched
   (let [gen-1 (apply canned-marcsource test-dataset)

@@ -76,15 +76,15 @@
 
 
 (defn matches? [record fieldspec value]
-  (some (fn [^String fv] (.matches (.matcher (re-pattern value)
-                                             fv)))
+  (some (fn [^String fv] (.find (.matcher (re-pattern value)
+                                          fv)))
         (field-values record fieldspec)))
 
 
 (defn not-matches? [record fieldspec value]
   (when-let [fields (field-values record fieldspec)]
     (not-any? (fn [^String fv]
-                (.matches (.matcher (re-pattern value)
+                (.find (.matcher (re-pattern value)
                                     fv)))
               fields)))
 
