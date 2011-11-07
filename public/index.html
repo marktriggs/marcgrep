@@ -73,7 +73,7 @@
         </script>
 
         <div class="and_or_buttons">
-          <input type="button" class="preview_query" value="Preview query" style="display: none"/>
+          <input type="button" id="preview_query" value="Preview query" style="display: none"/>
           <input type="button" class="and_button" value="AND"/>
           <input type="button" class="or_button" value="OR"/>
         </div>
@@ -122,7 +122,7 @@
 
     <script>
       <!-- Wire up the buttons -->
-      $('.preview_query').click(function (elt) {
+      $('#preview_query').click(function (elt) {
           $('.querysection').dialog({width : 650, height: 650});
       });
 
