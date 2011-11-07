@@ -363,13 +363,13 @@ function extract_output_options()
 }
 
 
-function text_input(parent_elt, name, class_name, label, caption)
+function text_input(parent_elt, name, class_name, label, caption, help)
 {
     parent_elt.append($('<div class="captioned_input ' + class_name + '_container">' +
                         (label ? '<label for="' + name + '">' + label + '</label>' : '')+
                         '<div style="display: inline-block">' +
                         '<input class="' + class_name + ' input_field" ' +
-                        'type="text" name="' + name + '" />' + 
+                        'type="text" name="' + name + '" />' + help +
                         '<div class="caption ' + class_name + '_caption">' + caption + '</div>' +
                         '</div>' +
                         '</div>'));
@@ -381,7 +381,7 @@ function render_field(field)
     var result = $('<div class="field_options"></div>');
 
     if (field['type'] == 'text') {
-        text_input(result, field['name'], 'input_field', field['label'], field['caption']);
+        text_input(result, field['name'], 'input_field', field['label'], field['caption'], '');
     }
 
     result.hide();
@@ -452,5 +452,5 @@ function get_source_options()
 
 function help_link(name)
 {
-    return '<a class="help_button" id="help_' + name + '" href="#">[help]</a>'
+    return '<a class="help_button" id="help_' + name + '" href="#">?</a>'
 }

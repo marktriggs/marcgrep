@@ -50,42 +50,37 @@
               <span>the</span>
               <span class="target_field_container"></span>
               <span>field</span>
-              <select class="operator">
-                <option value="contains">exists and contains</option>
-                <option value="does_not_contain">exists and doesn't contain</option>
-                <option value="equals">exists and is exactly</option>
-                <option value="not_equals">exists and isn't</option>
-                <option no_value=1 value="exists">exists</option>
-                <option no_value=1 value="does_not_exist">doesn't exist</option>
-                <option value="matches_regexp">matches regular expression</option>
-                <option value="does_not_match_regexp">doesn't match regular expression</option>
-                <option no_wildcard_field=1 no_value=1 value="repeats_field">appears more than once</option>
-                <option no_wildcard_field=1 no_value=1 value="does_not_repeat_field">appears exactly once</option>
-              </select>
+              <div class="predicate_choice">
+                <select class="operator">
+                  <option value="contains">exists and contains</option>
+                  <option value="does_not_contain">exists and doesn't contain</option>
+                  <option value="equals">exists and is exactly</option>
+                  <option value="not_equals">exists and isn't</option>
+                  <option no_value=1 value="exists">exists</option>
+                  <option no_value=1 value="does_not_exist">doesn't exist</option>
+                  <option value="matches_regexp">matches regular expression</option>
+                  <option value="does_not_match_regexp">doesn't match regular expression</option>
+                  <option no_wildcard_field=1 no_value=1 value="repeats_field">appears more than once</option>
+                  <option no_wildcard_field=1 no_value=1 value="does_not_repeat_field">appears exactly once</option>
+                </select>
+                <span id="predicate_docs">
+                </span>
+
+                <script>
+                    $(function () {
+                        $('#predicate_docs').html(help_link('predicate_help'));
+                    });
+                </script>
+
+              </div>
               <span><input type="text" class="field_value" /></span>
             </div>
           </div>
         </div>
 
         <script type="text/javascript">
-          text_input($('.target_field_container'), 'target_field',
-          'target_field', '', 'e.g. 245, 245$a<br>' + help_link('target_field_help'));
+          text_input($('.target_field_container'), 'target_field', 'target_field', '', '', help_link('target_field_help'));
         </script>
-
-        <div id="target_field_help" class="help_text" style="display: none">
-          <p>MARCgrep can interpret field names in a couple of
-          different formats.  Here are some examples:</p>
-
-          <ul>
-            <li><span class="tagexample">245</span> &#8212 any field with a tag of 245 </li>
-            <li><span class="tagexample">245$a</span> &#8212 subfield $a of any 245 field</li>
-            <li><span class="tagexample">245!01$a</span> &#8212 subfield $a of any 245 field whose first indicator is "0" and whose second indicator is "1"</li>
-            <li><span class="tagexample">245!0#$a</span> &#8212 subfield $a of any 245 field whose first indicator is "0" and whose second indicator is any value</li>
-            <li><span class="tagexample">*</span>&#8212 any field in the record</li>
-
-          </ul>
-
-        </div>
 
         <div class="and_or_buttons">
           <input type="button" id="preview_query" value="Preview query" style="display: none"/>
@@ -136,71 +131,183 @@
 
 
     <script>
-      <!-- Wire up the buttons -->
-      $('#preview_query').click(function (elt) {
-          $('.querysection').dialog({width : 650, height: 650});
-      });
-
-      $('.and_button').click(function (elt) {
-          add_clause(elt, "AND");
-      });
-
-      $('.or_button').click(function (elt) {
-          add_clause(elt, "OR");
-      });
-
-      $('#group_button').click(function (elt) {
-          merge_groups();
-      });
-
-      $('#ungroup_button').click(function (elt) {
-          split_groups();
-      });
-
-      $('#remove_button').click(function (elt) {
-          remove_groups();
-      });
-
-
-      $('.help_button').click(function (elt) { 
-          var help_div = $(elt.target).attr('id').substring(("help_").length);
-          $('#' + help_div).dialog({width : 650, height: 300});
-          return false;
-      });
-
-      $(':button').click(function (elt) { update_form(); });
-      $('input').change(function (elt) { update_form(); });
-      $('select').change(function (elt) { update_form(); });
-
-      $('#submit').click(function (elt) {
-          var query = generate_query();
-          $.ajax({
-              "type" : "POST",
-              "url" : "add_job",
-              "data" : {"query" : query,
-                        "field-options" : extract_output_options(),
-                        "source" : $('#selected_source').val(),
-                        "destination" : $('#selected_output').val()},
-              "success" : function() {
-                  get_job_list();
-              }
+      $(function () {
+          <!-- Wire up the buttons -->
+          $('#preview_query').click(function (elt) {
+              $('.querysection').dialog({width : 650, height: 650});
           });
+
+          $('.and_button').click(function (elt) {
+              add_clause(elt, "AND");
+          });
+
+          $('.or_button').click(function (elt) {
+              add_clause(elt, "OR");
+          });
+
+          $('#group_button').click(function (elt) {
+              merge_groups();
+          });
+
+          $('#ungroup_button').click(function (elt) {
+              split_groups();
+          });
+
+          $('#remove_button').click(function (elt) {
+              remove_groups();
+          });
+
+
+          $('.help_button').click(function (elt) { 
+              var help_div = $(elt.target).attr('id').substring(("help_").length);
+              $('#' + help_div).dialog({width : $(window).width() * 0.80, height: $(window).height() * 0.80});
+              return false;
+          });
+
+          $(':button').click(function (elt) { update_form(); });
+          $('input').change(function (elt) { update_form(); });
+          $('select').change(function (elt) { update_form(); });
+
+          $('#submit').click(function (elt) {
+              var query = generate_query();
+              $.ajax({
+                  "type" : "POST",
+                  "url" : "add_job",
+                  "data" : {"query" : query,
+                            "field-options" : extract_output_options(),
+                            "source" : $('#selected_source').val(),
+                            "destination" : $('#selected_output').val()},
+                  "success" : function() {
+                      get_job_list();
+                  }
+              });
+          });
+
+
+          $('.bombs_away').click(function (elt) {
+              run_jobs();
+          });
+
+
+          update_form();
+
+          setInterval(function() { get_job_list(); }, 2000);
+          get_job_list();
+          get_source_options();
+          get_output_options();
       });
-
-
-      $('.bombs_away').click(function (elt) {
-          run_jobs();
-      });
-
-
-      update_form();
-
-      setInterval(function() { get_job_list(); }, 2000);
-      get_job_list();
-      get_source_options();
-      get_output_options();
     </script>
 
 
+
+    <!-- Help sections -->
+
+    <div id="target_field_help" class="help_text" style="display: none">
+      <p>MARCgrep can interpret field names in a couple of
+        different formats.  Here are some examples:</p>
+
+      <ul>
+        <li><span class="tagexample">245</span> &#8212 any field with a tag of 245 </li>
+        <li><span class="tagexample">245$a</span> &#8212 subfield $a of any 245 field</li>
+        <li><span class="tagexample">245!01$a</span> &#8212 subfield $a of any 245 field whose first indicator is "0" and whose second indicator is "1"</li>
+        <li><span class="tagexample">245!0#$a</span> &#8212 subfield $a of any 245 field whose first indicator is "0" and whose second indicator is any value</li>
+        <li><span class="tagexample">*</span>&#8212 any field in the record</li>
+      </ul>
+
+    </div>
+
+    <div id="predicate_help" class="help_text" style="display: none">
+      <p>MARCgrep can find records based on a range of criteria:</p>
+
+      <ul>
+        <li><h4>exists and contains / exists and doesn't contain</h4>
+
+          <p>These match (or exclude) records that contain your query
+          text anywhere in the specified field.  For example, a
+          record like:</p>
+
+          <div class="example_record">001 7961234
+            ...
+            245 10 $a Happy horse apple
+          </div>
+
+          <p>Would be matched by a query against the 245 field for
+          "apple" or "happy" or "Happy".  This criteria is case
+          insensitive.</p>
+
+          <p>Note that the negative form of this criteria ("exists
+          and does not contain") will only match records have the tag
+          you specify, but where no value of that tag matches your
+          query text.</p>
+        </li>
+
+        <li><h4>exists and is exactly / exists and isn't</h4>
+
+          <p>This criteria works in the same way as the previous one,
+          but requires a complete match on the value of a field.  The
+          previous record would not match on its 245 field unless your
+          query text was the complete <em>"happy horse apple"</em></p>
+
+          <p>As with the previous query, this is case insensitive.</p>
+        </li>
+
+        <li><h4>exists / doesn't exist</h4></li>
+
+        <p>This criteria matches any record that contains (or doesn't
+        contain) the tag you specify.  For example, using this
+        criteria with a tag of <em>001</em> will match every record.  Using a
+        tag of <em>245!#0$d</em> will only match records containing a 245 field
+        whose second indicator is zero and with a value for subfield d.</p>
+
+        <li><h4>matches regular expression / doesn't match regular expression</h4></li>
+
+        <p>This criteria lets you provide
+        a <a href="http://en.wikipedia.org/wiki/Regular_expression">regular
+        expression</a> that should be used to include (or exclude)
+        matches.  Some examples:</p>
+
+        <table class="cookbook">
+
+          <tr>
+            <th>Field</th><th>Regular expression</th><th>Description</th>
+          </tr>
+
+          <tr>
+            <td>001</td>
+            <td class="regexp">000$</td>
+            <td>Any record whose Bib ID ends in three zeroes</td>
+          </tr>
+
+          <tr>
+            <td>008</td>
+            <td class="regexp">.{35}fre</td>
+            <td>Any record whose language code is "fre".  Here, "." means
+            "anything" and "{35}" means "35 of them", so you can read
+            this as "35 of anything followed by 'fre'".</td>
+          </tr>
+
+          <tr>
+            <td>245$h</td>
+            <td class="regexp">(Electronic|Manuscript)</td>
+            <td>Any record whose 245$h contains the string
+            "Electronic" or "Manuscript" (note: you could achieve the
+            same effect by constructing a boolean query)</td>
+          </tr>
+
+        </table>
+
+        <p>Note that regular expressions, unlike the other criteria
+        shown so far, are case sensitive.</p>
+
+        <li><h4>appears more than once / appears exactly once</h4>
+
+          <p>This criteria matches any record that has more than one
+          occurrence (or exactly one occurrence) of the specified
+          field.</p>
+
+        </li>
+      </ul>
+
+    </div>
   </body>
 </html>

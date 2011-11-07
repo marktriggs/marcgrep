@@ -53,6 +53,12 @@ h3:before {
     margin-right: 10px;
 }
 
+h4 {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
+}
+
 .label {
     display: inline-block;
     width: 4em;
@@ -107,8 +113,6 @@ h3:before {
 
 .target_field_container {
   display: inline-block;
-  position: relative;
-  vertical-align: top;
  }
 
 .group_button {display: none; float: right;}
@@ -246,6 +250,16 @@ ul {
     padding-left: 2em;
 }
 
+.help_button {
+    color: #3939ff;
+    font-weight: bold;
+    display: inline-block;
+    text-align: center;
+    width: 1em;
+    text-decoration: none;
+    margin-right: 1em;
+}
+
 .help_text {
     font-size: 80%;
 }
@@ -254,4 +268,39 @@ ul {
     font-weight: bold;
     display: inline-block;
     width: 5em;
+}
+
+.predicate_choice {
+    display: inline-block;
+    vertical-align: top;
+    text-align: right;
+}
+
+.example_record {
+    white-space: pre-line;
+    font-family: monospace;
+    margin-bottom: 1em;
+    margin-left: 1em;
+}
+
+em {
+    font-weight: bold;
+}
+
+
+table.cookbook th {
+    font-weight: bold;
+    text-align: left;
+}
+
+table.cookbook td {
+    padding-right: 1em;
+}
+
+table.cookbook {
+    margin-bottom: 1em;
+}
+
+.regexp {
+    font-family: monospace;
 }
