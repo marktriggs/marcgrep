@@ -109,7 +109,6 @@ h3:before {
   display: inline-block;
   position: relative;
   vertical-align: top;
-  margin-right: -1em;
  }
 
 .group_button {display: none; float: right;}
@@ -240,4 +239,19 @@ table#job_list .job_query {
 
 .job_control .bombs_away {
     font-size: 120%;
+}
+
+ul {
+    list-style-type: circle;
+    padding-left: 2em;
+}
+
+.help_text {
+    font-size: 80%;
+}
+
+.tagexample {
+    font-weight: bold;
+    display: inline-block;
+    width: 5em;
 }

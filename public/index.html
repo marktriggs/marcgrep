@@ -69,8 +69,23 @@
 
         <script type="text/javascript">
           text_input($('.target_field_container'), 'target_field',
-          'target_field', '', 'e.g. 245, 245$a, 245!01$a<br>or * for "any field"');
+          'target_field', '', 'e.g. 245, 245$a<br>' + help_link('target_field_help'));
         </script>
+
+        <div id="target_field_help" class="help_text" style="display: none">
+          <p>MARCgrep can interpret field names in a couple of
+          different formats.  Here are some examples:</p>
+
+          <ul>
+            <li><span class="tagexample">245</span> &#8212 any field with a tag of 245 </li>
+            <li><span class="tagexample">245$a</span> &#8212 subfield $a of any 245 field</li>
+            <li><span class="tagexample">245!01$a</span> &#8212 subfield $a of any 245 field whose first indicator is "0" and whose second indicator is "1"</li>
+            <li><span class="tagexample">245!0#$a</span> &#8212 subfield $a of any 245 field whose first indicator is "0" and whose second indicator is any value</li>
+            <li><span class="tagexample">*</span>&#8212 any field in the record</li>
+
+          </ul>
+
+        </div>
 
         <div class="and_or_buttons">
           <input type="button" id="preview_query" value="Preview query" style="display: none"/>
@@ -126,7 +141,6 @@
           $('.querysection').dialog({width : 650, height: 650});
       });
 
-
       $('.and_button').click(function (elt) {
           add_clause(elt, "AND");
       });
@@ -147,6 +161,12 @@
           remove_groups();
       });
 
+
+      $('.help_button').click(function (elt) { 
+          var help_div = $(elt.target).attr('id').substring(("help_").length);
+          $('#' + help_div).dialog({width : 650, height: 300});
+          return false;
+      });
 
       $(':button').click(function (elt) { update_form(); });
       $('input').change(function (elt) { update_form(); });

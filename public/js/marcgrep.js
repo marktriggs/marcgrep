@@ -448,3 +448,9 @@ function get_source_options()
         }
     });
 }
+
+
+function help_link(name)
+{
+    return '<a class="help_button" id="help_' + name + '" href="#">[help]</a>'
+}
