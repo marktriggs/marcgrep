@@ -226,7 +226,18 @@ table#job_list .job_query {
 
 }
 
-.bombs_away
-{
-    margin-top: 1em;
+
+.joblist h2:after {
+    content: "\2192";
+}
+
+
+.job_control {
+    position: relative;
+    top: -20px;
+    text-align: right;
+}
+
+.job_control .bombs_away {
+    font-size: 120%;
 }
