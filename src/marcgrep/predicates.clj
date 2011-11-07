@@ -21,7 +21,8 @@
 
 (defn field-values [^Record record fieldspec]
   (if (re-matches (:controlfield-pattern @config) (:tag fieldspec))
-    [(.getData ^ControlField (.getVariableField record (:tag fieldspec)))]
+    (when (.getVariableField record (:tag fieldspec))
+      [(.getData ^ControlField (.getVariableField record (:tag fieldspec)))])
     (when-let [fields (seq (matching-fields record fieldspec))]
       (map (fn [^DataField field]
              (let [subfield-list (if (:subfields fieldspec)
