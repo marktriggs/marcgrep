@@ -59,8 +59,8 @@
                 <option no_value=1 value="does_not_exist">doesn't exist</option>
                 <option value="matches_regexp">matches regular expression</option>
                 <option value="does_not_match_regexp">doesn't match regular expression</option>
-                <option no_value=1 value="repeats_field">appears more than once</option>
-                <option no_value=1 value="does_not_repeat_field">appears exactly once</option>
+                <option no_wildcard_field=1 no_value=1 value="repeats_field">appears more than once</option>
+                <option no_wildcard_field=1 no_value=1 value="does_not_repeat_field">appears exactly once</option>
               </select>
               <span><input type="text" class="field_value" /></span>
             </div>
@@ -68,7 +68,8 @@
         </div>
 
         <script type="text/javascript">
-          text_input($('.target_field_container'), 'target_field', 'target_field', '', '245, 245$a, 245!01$a');
+          text_input($('.target_field_container'), 'target_field',
+          'target_field', '', 'e.g. 245, 245$a, 245!01$a<br>or * for "any field"');
         </script>
 
         <div class="and_or_buttons">

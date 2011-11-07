@@ -23,7 +23,8 @@ h1 {
 
 
 .choose_source {
-    margin-left: 1em;
+    margin-left: 1.2em;
+    margin-bottom: 1em;
 }
 
 .step {
@@ -107,8 +108,8 @@ h3:before {
 .target_field_container {
   display: inline-block;
   position: relative;
-  top: 1ex;
-  margin-right: - 1em;
+  vertical-align: top;
+  margin-right: -1em;
  }
 
 .group_button {display: none; float: right;}

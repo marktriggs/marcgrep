@@ -20,16 +20,24 @@
 
 
 (defn field-values [^Record record fieldspec]
-  (if (re-matches (:controlfield-pattern @config) (:tag fieldspec))
-    (when (.getVariableField record (:tag fieldspec))
-      [(.getData ^ControlField (.getVariableField record (:tag fieldspec)))])
-    (when-let [fields (seq (matching-fields record fieldspec))]
-      (map (fn [^DataField field]
-             (let [subfield-list (if (:subfields fieldspec)
-                                   (mapcat #(.getSubfields field %) (:subfields fieldspec))
-                                   (.getSubfields field))]
-               (join " " (map #(.getData ^Subfield %) subfield-list))))
-           fields))))
+  (if (nil? (:tag fieldspec))
+    ;; match any field in the record
+    (for [variable-field (.getVariableFields record)
+          subfield (if (instance? ControlField variable-field)
+                     [variable-field]
+                     (.getSubfields variable-field))]
+      (.getData subfield))
+
+    (if (re-matches (:controlfield-pattern @config) (:tag fieldspec))
+      (when (.getVariableField record (:tag fieldspec))
+        [(.getData ^ControlField (.getVariableField record (:tag fieldspec)))])
+      (when-let [fields (seq (matching-fields record fieldspec))]
+        (map (fn [^DataField field]
+               (let [subfield-list (if (:subfields fieldspec)
+                                     (mapcat #(.getSubfields field %) (:subfields fieldspec))
+                                     (.getSubfields field))]
+                 (join " " (map #(.getData ^Subfield %) subfield-list))))
+             fields)))))
 
 
 (defn contains? [record fieldspec ^String value]

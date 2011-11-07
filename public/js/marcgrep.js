@@ -117,6 +117,14 @@ function update_form() {
     $('.where_clause').each(function(idx, clause) {
         var selected = $(clause).find('.operator option:selected');
         $(clause).find('.field_value').attr('disabled', !!selected.attr('no_value'));
+
+        if (selected.attr('no_wildcard_field')) {
+            var target = $(clause).find('.target_field');
+
+            if (target.val() == "*") {
+                target.val('');
+            }
+        }
     });
 
     var groups = $('.clause_group');

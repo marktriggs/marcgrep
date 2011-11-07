@@ -100,3 +100,11 @@
               :value true}
              :on test-dataset
              :matches ["12345" "23456"]))
+
+(deftest all-fields-search
+  (the-query {:operator "contains"
+              :field "*"
+              :value "hello"}
+             :on test-dataset
+             :matches ["12345"]
+             :does-not-match ["23456"]))

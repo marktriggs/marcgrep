@@ -64,7 +64,10 @@
 
 
 (defn parse-marc-field [s]
-  (let [parsed (or (when-let [match (re-find #"^([0-9]+)!(.)(.)?\$(.*)" s)]
+  (let [parsed (or (when (= s "*")
+                     ;; "any" search
+                     {:tag nil :ind1 nil :ind2 nil :subfields nil})
+                   (when-let [match (re-find #"^([0-9]+)!(.)(.)?\$(.*)" s)]
                      (let [[_ tag ind1 ind2 subfields] match]
                        {:tag tag :ind1 ind1 :ind2 ind2 :subfields subfields}))
                    (when-let [match (re-find #"^([0-9]+)!(.)(.)?$" s)]
