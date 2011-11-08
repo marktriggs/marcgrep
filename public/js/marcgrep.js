@@ -450,7 +450,7 @@ function get_source_options()
 }
 
 
-function help_link(name)
+function help_link(name, title)
 {
-    return '<a class="help_button" id="help_' + name + '" href="#">?</a>'
+    return '<a class="help_button" title="' + title + '" id="help_' + name + '" href="#">?</a>'
 }

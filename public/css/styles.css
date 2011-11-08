@@ -7,11 +7,10 @@ body {
   line-height: 1.2em;
 }
 
-p { margin-bottom: 1em; }
+p { margin-bottom: 1em; margin-top: 1em; }
 
 .logo {
     margin-top: 10px;
-    margin-bottom: 20px;
 }
 
 h1 {
@@ -264,8 +263,13 @@ ul {
     font-size: 80%;
 }
 
+.help_text * {
+    max-width: 800px;
+}
+
 .tagexample {
-    font-weight: bold;
+    font-family: monospace;
+    font-size: 120%;
     display: inline-block;
     width: 5em;
 }
@@ -281,6 +285,12 @@ ul {
     font-family: monospace;
     margin-bottom: 1em;
     margin-left: 1em;
+}
+
+.example {
+    margin-left: 1em;
+    color: #565656;
+    margin-
 }
 
 em {

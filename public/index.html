@@ -68,7 +68,7 @@
 
                 <script>
                     $(function () {
-                        $('#predicate_docs').html(help_link('predicate_help'));
+                        $('#predicate_docs').html(help_link('predicate_help', 'Search criteria'));
                     });
                 </script>
 
@@ -79,13 +79,24 @@
         </div>
 
         <script type="text/javascript">
-          text_input($('.target_field_container'), 'target_field', 'target_field', '', '', help_link('target_field_help'));
+          text_input($('.target_field_container'), 'target_field', 'target_field', '', '', help_link('target_field_help', 'Field selectors'));
         </script>
 
         <div class="and_or_buttons">
           <input type="button" id="preview_query" value="Preview query" style="display: none"/>
           <input type="button" class="and_button" value="AND"/>
           <input type="button" class="or_button" value="OR"/>
+
+          <span id="boolean_docs">
+          </span>
+
+          <script>
+            $(function () {
+            $('#boolean_docs').html(help_link('boolean_help', 'Boolean queries'));
+            });
+          </script>
+
+
         </div>
 
 
@@ -133,42 +144,51 @@
     <script>
       $(function () {
           <!-- Wire up the buttons -->
-          $('#preview_query').click(function (elt) {
-              $('.querysection').dialog({width : 650, height: 650});
+          $('#preview_query').click(function (evt) {
+              $('.querysection').dialog({width : 650, height: 650, modal: true});
           });
 
-          $('.and_button').click(function (elt) {
-              add_clause(elt, "AND");
+          $('.and_button').click(function (evt) {
+              add_clause(evt, "AND");
           });
 
-          $('.or_button').click(function (elt) {
-              add_clause(elt, "OR");
+          $('.or_button').click(function (evt) {
+              add_clause(evt, "OR");
           });
 
-          $('#group_button').click(function (elt) {
+          $('#group_button').click(function (evt) {
               merge_groups();
           });
 
-          $('#ungroup_button').click(function (elt) {
+          $('#ungroup_button').click(function (evt) {
               split_groups();
           });
 
-          $('#remove_button').click(function (elt) {
+          $('#remove_button').click(function (evt) {
               remove_groups();
           });
 
 
-          $('.help_button').click(function (elt) { 
-              var help_div = $(elt.target).attr('id').substring(("help_").length);
-              $('#' + help_div).dialog({width : $(window).width() * 0.80, height: $(window).height() * 0.80});
+          $('.help_button').click(function (evt) { 
+              var help_div = $(evt.target).attr('id').substring(("help_").length);
+              var title = 'MARCgrep help';
+
+              if ($(evt.target).attr('title')) {
+                  title = title + ": " + $(evt.target).attr('title');
+              }
+
+              $('#' + help_div).dialog({width : $(window).width() * 0.80, 
+                                        height: $(window).height() * 0.80,
+                                        title: title,
+                                        modal: true});
               return false;
           });
 
-          $(':button').click(function (elt) { update_form(); });
-          $('input').change(function (elt) { update_form(); });
-          $('select').change(function (elt) { update_form(); });
+          $(':button').click(function (evt) { update_form(); });
+          $('input').change(function (evt) { update_form(); });
+          $('select').change(function (evt) { update_form(); });
 
-          $('#submit').click(function (elt) {
+          $('#submit').click(function (evt) {
               var query = generate_query();
               $.ajax({
                   "type" : "POST",
@@ -184,7 +204,7 @@
           });
 
 
-          $('.bombs_away').click(function (elt) {
+          $('.bombs_away').click(function (evt) {
               run_jobs();
           });
 
@@ -307,6 +327,65 @@
 
         </li>
       </ul>
+    </div>
+
+    <div id="boolean_help" class="help_text" style="display: none">
+      <p>MARCgrep lets you combine multiple search clauses together
+      using boolean operators.  This feature makes it possible to
+      construct multi-part searches like:</p>
+
+      <div class="example">
+      "Find the records containing the word 'voyage' in the 245$a that
+       have more than one 100 field."
+      </div>
+
+      <p>You can add additional clauses to your query by clicking the
+      <input type="button" value="AND" /> and <input type="button"
+      value="OR" /> buttons.  Each clause can have a different search
+      criteria and query text.</p>
+
+      <h4>Grouping clauses</h4>
+      <p>
+        You might occasionally find that you need more control over
+        the way your boolean queries are interpreted.  For example,
+        consider the query:
+
+        <div class="example">
+          "the 245$a contains 'gulliver'" <em>AND</em> "the 100 contains 'Swift'" <em>OR</em> "the 100 contains 'Austen'"
+        </div>
+
+        <p>It's not immediately clear whether we meant:</p>
+
+        <div class="example">
+          <em>(</em> "the 245$a contains 'gulliver'" <em>AND</em> "the 100 contains 'Swift'" <em>)</em> <em>OR</em> "the 100 contains 'Austen'"
+        </div>
+
+        <p>Yielding records with 'gulliver' in the 245 and 'Swift' in
+        the 100, plus all records with 'Austen' in the 100; or</p>
+
+        <div class="example">
+          "the 245$a contains 'gulliver'" <em>AND</em> <em>(</em> "the 100 contains 'Swift'" <em>OR</em> "the 100 contains 'Austen'" <em>)</em> 
+        </div>
+
+        <p>Yielding only records with 'gulliver' in the 245 and one of
+        'Austen' or 'Swift' in the 100.</p>
+
+        <p>If in doubt, it doesn't hurt to be explicit about what you
+        mean.  You can group clauses together by clicking the checkbox
+        (<input type="checkbox" />) next to each clause, and then
+        clicking the <input type="button" value="group" /> button that
+        subsequently appears.  Clauses that are grouped together are
+        connected by a vertical line, and you can split them apart
+        again by re-selecting the checkbox and clicking
+        <input type="button" value="ungroup" /></p>
+
+        <p>To see how your query will be interpreted by MARCgrep, you
+        can click the <input type="button" value="Preview query" /> button at any
+        time.  This shows the raw query that will be passed to the
+        MARCgrep engine.</p>
+
+
+      </p>
 
     </div>
   </body>
