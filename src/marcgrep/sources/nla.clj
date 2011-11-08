@@ -1,4 +1,5 @@
 (ns marcgrep.sources.nla
+  (:refer-clojure :exclude [next])
   (:use marcgrep.protocols
         clojure.java.io)
   (:import [org.marc4j MarcXmlReader]
