@@ -23,8 +23,8 @@
                   (.write out " ")
                   (.write out (.getData sf)))))
           (.write out (.getData ^ControlField f)))
-        (.write out "\n"))))
-  (.write out "\n"))
+        (.write out "\r\n"))))
+  (.write out "\r\n"))
 
 
 (deftype PlaintextDestination [^BufferedWriter writer included-fields]
