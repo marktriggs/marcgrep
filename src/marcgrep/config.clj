@@ -6,8 +6,7 @@
 
 (def defaults {:worker-threads 2
                :max-concurrent-jobs 1
-               :poll-delay-ms 5000
-               :controlfield-pattern #"00[0-9]"})
+               :poll-delay-ms 5000})
 
 (defn load-config [rdr]
   (reset! config (read (PushbackReader. rdr)))

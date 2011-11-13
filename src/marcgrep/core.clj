@@ -66,10 +66,7 @@
 
 
 (defn parse-marc-field [s]
-  (let [parsed (or (when (= s "*")
-                     ;; "any" search
-                     {:tag nil :ind1 nil :ind2 nil :subfields nil})
-                   (when-let [match (re-find #"^([0-9]+)!(.)(.)?\$(.*)" s)]
+  (let [parsed (or (when-let [match (re-find #"^([0-9]+)!(.)(.)?\$(.*)" s)]
                      (let [[_ tag ind1 ind2 subfields] match]
                        {:tag tag :ind1 ind1 :ind2 ind2 :subfields subfields}))
                    (when-let [match (re-find #"^([0-9]+)!(.)(.)?$" s)]
@@ -78,7 +75,8 @@
                    (when-let [match (re-find #"^([0-9]+)\$(.*)$" s)]
                      (let [[_ tag subfields] match]
                        {:tag tag :ind1 nil :ind2 nil :subfields subfields}))
-                   {:tag s :ind1 nil :ind2 nil :subfields nil})]
+                   {:tag s :ind1 nil :ind2 nil :subfields nil})
+        parsed (update-in parsed [:tag] #(.replace ^String % "*" ""))]
     (reduce (fn [result k]
               (assoc result k
                      (if (= (result k) "#")
@@ -102,7 +100,7 @@
           value (if (or (not (string? (:value query)))
                         (:case-sensitive options))
                   (:value query)
-                  (.toLowerCase (:value query)))
+                  (.toLowerCase ^String (:value query)))
           fieldspec (parse-marc-field (:field query))]
       (fn [record]
         (predicate record fieldspec value)))))

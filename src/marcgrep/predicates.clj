@@ -8,8 +8,8 @@
 (defn matching-fields [^Record record fieldspec]
   (filter (fn [^VariableField field]
             (and
-             (= (.getTag field) (:tag fieldspec))
-             (or (re-matches (:controlfield-pattern @config) (:tag fieldspec))
+             (.startsWith (.getTag field) (:tag fieldspec))
+             (or (instance? ControlField field)
                  (or (not (:ind1 fieldspec))
                      (.equals ^Character (.getIndicator1 ^DataField field)
                               ^Character (:ind1 fieldspec)))
@@ -20,24 +20,16 @@
 
 
 (defn field-values [^Record record fieldspec]
-  (if (nil? (:tag fieldspec))
-    ;; match any field in the record
-    (for [variable-field (.getVariableFields record)
-          subfield (if (instance? ControlField variable-field)
-                     [variable-field]
-                     (.getSubfields variable-field))]
-      (.getData subfield))
-
-    (if (re-matches (:controlfield-pattern @config) (:tag fieldspec))
-      (when (.getVariableField record (:tag fieldspec))
-        [(.getData ^ControlField (.getVariableField record (:tag fieldspec)))])
-      (when-let [fields (seq (matching-fields record fieldspec))]
-        (map (fn [^DataField field]
-               (let [subfield-list (if (:subfields fieldspec)
-                                     (mapcat #(.getSubfields field %) (:subfields fieldspec))
-                                     (.getSubfields field))]
-                 (join " " (map #(.getData ^Subfield %) subfield-list))))
-             fields)))))
+  (when-let [fields (seq (matching-fields record fieldspec))]
+    (map (fn [^VariableField field]
+           (if (instance? DataField field)
+             (let [field ^DataField field
+                   subfield-list (if (:subfields fieldspec)
+                                   (mapcat #(.getSubfields field %) (:subfields fieldspec))
+                                   (.getSubfields field))]
+               (join " " (map #(.getData ^Subfield %) subfield-list)))
+             (.getData ^ControlField field)))
+         fields)))
 
 
 (defn contains-keyword? [record fieldspec ^String value]

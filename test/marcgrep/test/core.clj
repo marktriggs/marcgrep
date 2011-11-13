@@ -11,7 +11,12 @@
   [(marc-record {"001" "12345"}
                 [{:tag "245" :subfields [[\a "hello world"]]}])
    (marc-record {"001" "23456"}
-                [{:tag "245" :subfields [[\a "this is a test"]]}])])
+                [{:tag "245" :subfields [[\a "this is a test"]]}])
+   (marc-record {"001" "34567"}
+                [{:tag "245" :subfields [[\a "testing 123"]]}])
+   (marc-record {"001" "45678"}
+                [{:tag "245" :subfields [[\a "the rain in Spain"]]}
+                 {:tag "100" :subfields [[\a "Hello, Mark"]]}])])
 
 
 (defn suite-setup [f]
@@ -123,3 +128,26 @@
              :matches ["12345"]
              :does-not-match ["23456"]))
 
+(deftest field-wildcard-search
+  (the-query {:operator "contains"
+              :field "2*"
+              :value "hello"}
+             :on test-dataset
+             :matches ["12345"]
+             :does-not-match ["45678"]))
+
+(deftest keyword-search
+  (the-query {:operator "contains_keyword"
+              :field "*"
+              :value "test"}
+             :on test-dataset
+             :matches ["23456"]
+             :does-not-match ["34567"]))
+
+(deftest keyword-search-negated
+  (the-query {:operator "does_not_contain_keyword"
+              :field "*"
+              :value "test"}
+             :on test-dataset
+             :matches ["34567"]
+             :does-not-match ["23456"]))

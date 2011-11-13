@@ -1,7 +1,5 @@
 {:output-dir "/var/tmp"
 
- :controlfield-pattern #"00[0-9]"
-
  :listen-port 9095
 
  ;; Note: the total number of active threads will be (roughly) these two values multiplied.
