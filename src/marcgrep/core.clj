@@ -48,7 +48,9 @@
 ;;; Query parsing
 ;;;
 
-(def predicates {"contains" predicates/contains?
+(def predicates {"contains_keyword" predicates/contains-keyword?
+                 "does_not_contain_keyword" predicates/does-not-contain-keyword?
+                 "contains" predicates/contains?
                  "does_not_contain" predicates/does-not-contain?
                  "equals" predicates/equals?
                  "not_equals" predicates/not-equals?

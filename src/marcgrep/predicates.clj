@@ -40,6 +40,21 @@
              fields)))))
 
 
+(defn contains-keyword? [record fieldspec ^String value]
+  (let [pattern (re-pattern (format "(?i)\\b\\Q%s\\E\\b"
+                                    value))]
+    (some (fn [^String fv] (.find (.matcher pattern fv)))
+          (field-values record fieldspec))))
+
+
+(defn does-not-contain-keyword? [record fieldspec ^String value]
+  (when-let [fields (field-values record fieldspec)]
+    (let [pattern (re-pattern (format "(?i)\\b\\Q%s\\E\\b"
+                                      value))]
+      (not-any? (fn [^String fv] (.find (.matcher pattern fv)))
+                fields))))
+
+
 (defn contains? [record fieldspec ^String value]
   (some (fn [^String fv]
           (>= (.indexOf (.toLowerCase fv)
@@ -54,7 +69,7 @@
                 (>= (.indexOf (.toLowerCase fv)
                               value)
                     0))
-              (field-values record fieldspec))))
+              fields)))
 
 
 (defn equals? [record fieldspec value]
@@ -65,7 +80,7 @@
 (defn not-equals? [record fieldspec value]
   (when-let [fields (field-values record fieldspec)]
     (not-any? (fn [^String fv] (.equalsIgnoreCase fv value))
-              (field-values record fieldspec))))
+              fields)))
 
 
 (defn exists? [record fieldspec _]
@@ -76,17 +91,17 @@
 
 
 (defn matches? [record fieldspec value]
-  (some (fn [^String fv] (.find (.matcher (re-pattern value)
-                                          fv)))
-        (field-values record fieldspec)))
+  (let [pattern (re-pattern value)]
+    (some (fn [^String fv] (.find (.matcher pattern fv)))
+          (field-values record fieldspec))))
 
 
 (defn not-matches? [record fieldspec value]
   (when-let [fields (field-values record fieldspec)]
-    (not-any? (fn [^String fv]
-                (.find (.matcher (re-pattern value)
-                                    fv)))
-              fields)))
+    (let [pattern (re-pattern value)]
+      (not-any? (fn [^String fv]
+                  (.find (.matcher pattern fv)))
+                fields))))
 
 
 (defn has-repeating-fields? [record fieldspec value]

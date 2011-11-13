@@ -52,10 +52,12 @@
               <span>field</span>
               <div class="predicate_choice">
                 <select class="operator">
-                  <option value="contains">exists and contains</option>
-                  <option value="does_not_contain">exists and doesn't contain</option>
-                  <option value="equals">exists and is exactly</option>
-                  <option value="not_equals">exists and isn't</option>
+                  <option value="contains_keyword">exists and contains the keyword</option>
+                  <option value="does_not_contain_keyword">exists and doesn't contain the keyword</option>
+                  <option value="contains">exists and contains the string</option>
+                  <option value="does_not_contain">exists and doesn't contain the string</option>
+                  <option value="equals">exists and the entire field is</option>
+                  <option value="not_equals">exists and the entire field isn't</option>
                   <option no_value=1 value="exists">exists</option>
                   <option no_value=1 value="does_not_exist">doesn't exist</option>
                   <option value="matches_regexp">matches regular expression</option>
@@ -241,7 +243,25 @@
       <p>MARCgrep can find records based on a range of criteria:</p>
 
       <ul>
-        <li><h4>exists and contains / exists and doesn't contain</h4>
+        <li><h4>exists and contains the keyword / exists and doesn't contain the keyword</h4>
+
+          <p>These match (or exclude) records that contain particular
+          keywords anywhere in the specified field.  For example,
+          a record like:</p>
+
+          <div class="example_record">001 7961234
+            ...
+            245 10 $a Happy horse apple
+          </div>
+
+          <p>Would be matched by a query against the 245 field for
+          "apple" or "happy" or "Happy".  This criteria is case
+          insensitive.</p>
+
+        </li>
+
+
+        <li><h4>exists and contains the string / exists and doesn't contain the string</h4>
 
           <p>These match (or exclude) records that contain your query
           text anywhere in the specified field.  For example, a
@@ -253,16 +273,22 @@
           </div>
 
           <p>Would be matched by a query against the 245 field for
-          "apple" or "happy" or "Happy".  This criteria is case
+          "ap" or "appl" or "happy" or "Happy".  This criteria is case
           insensitive.</p>
 
-          <p>Note that the negative form of this criteria ("exists
-          and does not contain") will only match records have the tag
-          you specify, but where no value of that tag matches your
-          query text.</p>
+          <p>Note that the <em>"contains the keyword"</em> and <em>"contains the string"</em> are deceptively similar!  The keyword variant operates at the word level, so if a field contains:</p>
+
+          <div class="example">
+            I am testing MARCgrep and hope it works!
+          </div>
+
+          <p>Then a keyword query for "testing" would find a match, but a keyword query for "test" would not.  The keyword search requires a match on an entire word.</p>
+
+          <p>The string variant operates at the level of individual characters.  With the above example, you could find a match by searching for "test" or "te" or "Cgrep and hop".  Searching for any substring of the text will get you a match.  This is a lower-level search, but is useful for finding records containing things like strange diacritic characters, runs of space characters, and so on.</p>
+
         </li>
 
-        <li><h4>exists and is exactly / exists and isn't</h4>
+        <li><h4>exists and the entire field is / exists and the entire field isn't</h4>
 
           <p>This criteria works in the same way as the previous one,
           but requires a complete match on the value of a field.  The
