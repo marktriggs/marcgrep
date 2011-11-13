@@ -289,9 +289,7 @@ function get_job_list()
         "url" : "job_list",
         "data" : {timestamp : get_timestamp()},
         "success" : function(data) {
-            var list = $('#job_list');
-
-            $('.job').remove();
+            var list = [];
 
             $(data['jobs']).each(function(idx, job) {
                 var row = $('<tr class="job"></tr>');
@@ -317,8 +315,28 @@ function get_job_list()
                 row.append(delete_button);
                 $(delete_button).wrap('<td />');
 
-                list.append(row);
+                list.push(row);
             });
+
+            
+            // Replace the existing divs one by one to stop the
+            // overall container height changing if possible.
+            // Otherwise IE insists on scrolling randomly and jumping
+            // around.
+            var job_entries = $('.job');
+
+            for (var i = 0; i < Math.max(job_entries.size(), list.length); i++) {
+                if (i < list.length) {
+                    if (job_entries.get(i)) {
+                        $(list[i]).height($(job_entries.get(i)).height());
+                        $(job_entries.get(i)).replaceWith(list[i]);
+                    } else {
+                        $('#job_list').append(list[i]);
+                    }
+                } else {
+                    $(job_entries.get(i)).remove();
+                }
+            }
 
             $('.delete_job').click(function(event) {
                 var job_id = $(event.target).data('job_id');
@@ -327,15 +345,21 @@ function get_job_list()
                     "url" : "delete_job",
                     "data" : {"id" : job_id},
                     "success" : function(data) {
-                        get_job_list();
+                        get_job_list(); return false;
                     }});
             });
 
             if ($('.job').size() > 0) {
-                $('.joblist').fadeIn();
+                if (!$('.joblist').is(":visible")) {
+                    $('.joblist').fadeIn();
+                }
             } else {
-                $('.joblist').fadeOut();
+                if ($('.joblist').is(":visible")) {
+                    $('.joblist').fadeOut();
+                }
             }
+
+            return false;
         }
     });
 }
@@ -348,6 +372,7 @@ function run_jobs()
         "url" : "run_jobs",
         "success" : function(data) {
             get_job_list();
+            return false;
         }});
 }
 
@@ -426,6 +451,8 @@ function get_output_options()
 
             output_selection.change(function(event) { show_output_options(event.target) });
             show_output_options(output_selection);
+
+            return false;
         }
     });
 }
@@ -445,6 +472,8 @@ function get_source_options()
                 var option_elt = $('<option value="' + idx + '">' + option['description'] + '</option>');
                 source_selection.append(option_elt);
             });
+
+            return false;
         }
     });
 }

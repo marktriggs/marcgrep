@@ -199,6 +199,7 @@
                             "destination" : $('#selected_output').val()},
                   "success" : function() {
                       get_job_list();
+                      return false;
                   }
               });
           });
@@ -211,7 +212,7 @@
 
           update_form();
 
-          setInterval(function() { get_job_list(); }, 2000);
+          setInterval(function() { get_job_list(); return false; }, 2000);
           get_job_list();
           get_source_options();
           get_output_options();
