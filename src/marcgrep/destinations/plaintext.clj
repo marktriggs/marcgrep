@@ -36,7 +36,7 @@
 
 (defn get-output-for [config job]
   (file (:output-dir @config)
-        (str (:id @job) ".txt")))
+        (str (:listen-port @config) "_" (:id @job) ".txt")))
 
 
 (defn get-destination-for [config job]
