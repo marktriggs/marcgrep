@@ -1,5 +1,5 @@
 (ns marcgrep.test.test-utils
-  (:refer-clojure :exclude [next])
+  (:refer-clojure :exclude [next flush])
   (:use marcgrep.protocols
         clojure.test)
   (:require marcgrep.core)

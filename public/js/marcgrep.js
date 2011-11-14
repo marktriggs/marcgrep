@@ -306,6 +306,8 @@ function get_job_list()
 
                 if (job['file-available']) {
                     row.append('<td><a href="job_output/' + job['id'] + '">Download output</a></td>');
+                } else if (job['records-checked'] > 0) {
+                    row.append('<td><a href="job_output/' + job['id'] + '">Preview</a></td>');
                 } else {
                     row.append('<td>&nbsp;</td>');
                 }

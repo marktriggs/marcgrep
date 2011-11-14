@@ -1,6 +1,7 @@
 (ns marcgrep.destinations.marcfile
   (:use marcgrep.protocols
         clojure.java.io)
+  (:refer-clojure :exclude [next flush])
   (:import [org.marc4j MarcStreamWriter]
            [org.marc4j.marc Record]
            [java.io FileOutputStream]))
@@ -11,6 +12,7 @@
   (init [this])
   (write [this record]
     (.write writer ^Record record))
+  (flush [this])
   (close [this] (.close writer)))
 
 

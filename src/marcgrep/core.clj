@@ -1,5 +1,5 @@
 (ns marcgrep.core
-  (:refer-clojure :exclude [next])
+  (:refer-clojure :exclude [next flush])
   (:use marcgrep.config
         marcgrep.protocols
         compojure.core

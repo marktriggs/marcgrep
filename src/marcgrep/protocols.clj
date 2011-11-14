@@ -1,4 +1,5 @@
-(ns marcgrep.protocols)
+(ns marcgrep.protocols
+  (:refer-clojure :exclude [next flush]))
 
 (defprotocol MarcSource
   (init [this])
@@ -10,4 +11,5 @@
   (init [this])
   (getInputStream [this jobid])
   (write [this record])
+  (flush [this])
   (close [this]))
