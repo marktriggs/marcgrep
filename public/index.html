@@ -118,6 +118,14 @@
       <div id="submit_button" class="submit_button">
         <h3>Submit your job</h3>
         <input id="submit" type="button" value="Submit job"/>
+        <input id="clear" type="button" value="Clear form"/>
+        <div id="added_job" style="display: none;" class="tip">
+          <h5>Hooray!</h5>
+          <p>You can repeat this step as many times as you like to
+            submit more jobs.</p>
+
+          <p>When you click the <em>"Run all jobs"</em> button below it will run all of your jobs at once.</p>
+        </div>
       </div>
     </div>
 
@@ -193,6 +201,8 @@
           $('select').change(function (evt) { update_form(); });
 
           $('#submit').click(function (evt) {
+              $('#added_job').slideDown(250);
+
               var query = generate_query();
               $.ajax({
                   "type" : "POST",
@@ -203,11 +213,15 @@
                             "destination" : $('#selected_output').val()},
                   "success" : function() {
                       get_job_list();
+
                       return false;
                   }
               });
           });
 
+          $('#clear').click(function (evt) {
+              location.reload(true);
+          });
 
           $('.bombs_away').click(function (evt) {
               run_jobs();

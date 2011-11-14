@@ -175,6 +175,13 @@ label {
     margin-top: 5px;
 }
 
+.tip {
+    color: gray;
+    font-size: 60%;
+    margin-top: 5px;
+    margin-left: 3em;
+}
+
 .captioned_input {
     display: inline-block;
 }

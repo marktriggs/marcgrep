@@ -282,13 +282,25 @@ function render_job(job)
 }
 
 
+var deleted_jobs_pending = false;
+
 function get_job_list()
 {
+    if (deleted_jobs_pending) {
+        // Wait for the delete to finish before refreshing again.
+        return;
+    }
+
     $.ajax({
         "type" : "GET",
         "url" : "job_list",
         "data" : {timestamp : get_timestamp()},
         "success" : function(data) {
+            if (deleted_jobs_pending) {
+                // Wait for the delete to finish before refreshing again.
+                return;
+            }
+
             var list = [];
 
             $(data['jobs']).each(function(idx, job) {
@@ -346,11 +358,15 @@ function get_job_list()
 
             $('.delete_job').click(function(event) {
                 var job_id = $(event.target).data('job_id');
+
+                deleted_jobs_pending = true;
+                $(event.target).parents('tr.job:first').remove();
                 $.ajax({
                     "type" : "POST",
                     "url" : "delete_job",
                     "data" : {"id" : job_id},
-                    "success" : function(data) {
+                    "complete" : function(hr, status) {
+                        deleted_jobs_pending = false;
                         get_job_list(); return false;
                     }});
             });
