@@ -179,6 +179,8 @@
                   title = title + ": " + $(evt.target).attr('title');
               }
 
+              $('#' + help_div).animate({ scrollTop: 0 });
+
               $('#' + help_div).dialog({width : $(window).width() * 0.80, 
                                         height: $(window).height() * 0.80,
                                         title: title,
@@ -241,6 +243,7 @@
     </div>
 
     <div id="predicate_help" class="help_text" style="display: none">
+
       <p>MARCgrep can find records based on a range of criteria:</p>
 
       <ul>
@@ -310,7 +313,7 @@
         <li><h4>matches regular expression / doesn't match regular expression</h4></li>
 
         <p>This criteria lets you provide
-        a <a href="http://en.wikipedia.org/wiki/Regular_expression">regular
+        a <a target="_blank" href="http://en.wikipedia.org/wiki/Regular_expression">regular
         expression</a> that should be used to include (or exclude)
         matches.  Some examples:</p>
 
