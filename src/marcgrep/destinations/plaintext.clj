@@ -48,13 +48,12 @@
 
 (defn get-output-for [config job]
   (file (:output-dir @config)
-        (str (:listen-port @config) "_" (:id @job) ".txt")))
+        (str (:id @job) ".txt")))
 
 
 (defn get-destination-for [config job]
   (let [outfile (get-output-for config job)
         outfh (writer outfile)]
-    (.deleteOnExit outfile)
     (PlaintextDestination. outfh
                            (when-not (empty? (-> @job :field-options :field-list))
                              (set (.split (-> @job :field-options :field-list)

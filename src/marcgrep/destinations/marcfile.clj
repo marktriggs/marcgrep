@@ -18,13 +18,12 @@
 
 (defn get-output-for [config job]
   (file (:output-dir @config)
-        (str (:listen-port @config) "_" (:id @job) ".txt")))
+        (str (:id @job) ".txt")))
 
 
 (defn get-destination-for [config job]
   (let [outfile (get-output-for config job)
         outfh (MarcStreamWriter. (FileOutputStream. outfile) "UTF-8")]
-    (.deleteOnExit outfile)
     (MarcFileDestination. outfh)))
 
 (marcgrep.core/register-destination

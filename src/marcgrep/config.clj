@@ -5,6 +5,7 @@
 (def config (atom {}))
 
 (def defaults {:worker-threads 2
+               :state-file "marcgrep.dat"
                :max-concurrent-jobs 1
                :poll-delay-ms 5000})
 

@@ -3,6 +3,7 @@
   (:use marcgrep.config
         marcgrep.protocols
         compojure.core
+        [clojure.contrib.seq :only [positions]]
         [clojure.string :only [join]]
         clojure.java.io
         clojure.contrib.json)
@@ -11,6 +12,7 @@
             Subfield]
            [java.io BufferedReader ByteArrayInputStream FileOutputStream]
            [java.util Date]
+           [java.security MessageDigest]
            [java.util.concurrent LinkedBlockingQueue])
   (:require [marcgrep.predicates :as predicates]
             [compojure.route :as route]
@@ -108,6 +110,56 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Load and save the job queue
+;;;
+
+(defmethod print-dup java.util.Date [o w]
+  (print-ctor o (fn [o w]
+                  (print-dup (.getTime  o) w))
+              w))
+
+
+(defn serialise-job-queue [job-queue]
+  (binding [*print-dup* true]
+    (prn-str
+     (vec (map (fn [job]
+                 (dissoc (assoc @job
+                           :destination (or (first (positions #{(:destination @job)}
+                                                              @marcgrep.core/destinations))
+                                            (throw (Exception. (str "Couldn't find destination for "
+                                                                    @job)))))
+                         :query))
+               @job-queue)))))
+
+
+(defn deserialise-job-queue [s]
+  (binding [*print-dup* true]
+    (let [queue (read-string s)]
+      (vec (map (fn [job]
+                  (let [job (assoc job
+                              :destination (nth @marcgrep.core/destinations
+                                                (:destination job))
+                              :query (marcgrep.core/compile-query
+                                      (:query-string job)))]
+                    (atom
+                     (if (= (:status job) :completed)
+                       job
+                       (assoc job
+                         :status :not-started
+                         :hits 0
+                         :records-checked 0
+                         :file-ready? false)))))
+                queue)))))
+
+(defn snapshot-job-queue [& [key reference old-state new-state]]
+  (let [out-file (:state-file @config)]
+    (spit (file (str out-file ".tmp"))
+          (serialise-job-queue job-queue))
+    (.renameTo (file (str out-file ".tmp"))
+               (file out-file))))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Job control
 ;;;
 
@@ -175,7 +227,9 @@ of gathering up and collating their results."
 
       ;; Mark jobs as completed
       (swap! job assoc :completion-time (Date.))
-      (swap! job assoc :status :completed))))
+      (swap! job assoc :status :completed))
+
+    (snapshot-job-queue)))
 
 
 (defn list-ready-jobs []
@@ -228,6 +282,13 @@ running as many jobs as we're allowed, wait for an existing run to finish."
              (filter (complement future-done?) current-jobs))))))
 
 
+
+(defn sha1 [s]
+  (apply str (map #(format "%02x" %)
+                  (.digest (MessageDigest/getInstance "SHA1")
+                           (.getBytes s "UTF-8")))))
+
+
 (defn add-job
   "Add a new job to the job queue"
   [source destination query field-options]
@@ -245,7 +306,7 @@ running as many jobs as we're allowed, wait for an existing run to finish."
                      :file-ready? false
                      :status :not-started
                      :query-string query
-                     :id (str (gensym))})]
+                     :id (sha1 (str query (java.util.Date.)))})]
       (swap! job-queue (fn [queue elt] (conj (vec queue) elt))
              job)
       job)))
@@ -383,5 +444,11 @@ running as many jobs as we're allowed, wait for an existing run to finish."
 
   (doseq [destination (:marc-destination-list @config)]
     (require destination))
+
+  (let [state-file (file (:state-file @config))]
+    (when (.exists state-file)
+      (reset! job-queue (deserialise-job-queue (slurp state-file)))))
+
+  (add-watch job-queue "queue-checkpointer" snapshot-job-queue)
 
   (jetty/run-jetty (handler/api #'*app*) {:port (:listen-port @config)}))
