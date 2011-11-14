@@ -174,6 +174,7 @@ of gathering up and collating their results."
       (swap! job assoc :file-ready? true)
 
       ;; Mark jobs as completed
+      (swap! job assoc :completion-time (Date.))
       (swap! job assoc :status :completed))))
 
 
@@ -214,7 +215,9 @@ running as many jobs as we're allowed, wait for an existing run to finish."
                                jobs-ready-to-run)
            marc-source (open-marc-source next-source-to-run)]
 
-       (doseq [job jobs-to-run] (swap! job assoc :status :running))
+       (doseq [job jobs-to-run]
+         (swap! job assoc :status :running)
+         (swap! job assoc :start-time (Date.)))
 
        ;; schedule another run to catch any remaining jobs that we haven't run
        ;; in this round (if any).
@@ -287,13 +290,19 @@ running as many jobs as we're allowed, wait for an existing run to finish."
   {:headers {"Content-type" "application/json"}
    :body (json-str {:jobs (map (fn [job]
                                  {:id (:id @job)
-                                  :time (str (:submission-time @job))
+                                  :submission-time (str (:submission-time @job))
+                                  :start-time (str (:start-time @job))
+                                  :completion-time (str (:completion-time @job))
                                   :status (status-text (:status @job))
-                                  :hits (:hits @job)
-                                  :records-checked (:records-checked @job)
+                                  :hits (.format (java.text.DecimalFormat.)
+                                                 (:hits @job))
+                                  :records-checked (.format
+                                                    (java.text.DecimalFormat.)
+                                                    (:records-checked @job))
                                   :file-available (:file-ready? @job)
                                   :source (:description (:source @job))
-                                  :destination (:description (:destination @job))
+                                  :destination (:description
+                                                (:destination @job))
                                   :query (:query-string @job)})
                                @job-queue)})})
 

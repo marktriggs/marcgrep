@@ -294,11 +294,15 @@ function get_job_list()
             $(data['jobs']).each(function(idx, job) {
                 var row = $('<tr class="job"></tr>');
                 row.append($('<td class="query_column" />').append(render_job(job)));
-                row.append('<td>' + job['time'] + '</td>');
+                row.append('<td>' + 
+                           (job['submission-time'] ? ('<h5>Submitted:</h5>' + job['submission-time']) : '') +
+                           (job['start-time'] ? ('<h5>Started:</h5>' + job['start-time']) : '') +
+                           (job['completion-time'] ? ('<h5>Finished:</h5>' + job['completion-time']) : '') +
+                           '</td>');
 
                 var status = job['status'];
 
-                if (job['records-checked'] > 0) {
+                if (job['records-checked'] != '0') {
                     status += ' (' + job['hits'] + ' hits; ' + job['records-checked'] + ' records checked)';
                 }
 
@@ -306,7 +310,7 @@ function get_job_list()
 
                 if (job['file-available']) {
                     row.append('<td><a href="job_output/' + job['id'] + '">Download output</a></td>');
-                } else if (job['records-checked'] > 0) {
+                } else if (job['records-checked'] != '0') {
                     row.append('<td><a href="job_output/' + job['id'] + '">Preview</a></td>');
                 } else {
                     row.append('<td>&nbsp;</td>');
