@@ -3,7 +3,8 @@
   (:use marcgrep.config
         [clojure.string :only [join]])
   (:import [org.marc4j.marc Record VariableField DataField ControlField
-            Subfield]))
+            Subfield]
+           [java.util.regex Pattern]))
 
 (defn matching-fields [^Record record fieldspec]
   (filter (fn [^VariableField field]
@@ -32,17 +33,20 @@
          fields)))
 
 
+(defn keyword-regexp [keyword]
+  (let [boundary "(^|$|[\\p{Space}\\p{Punct}&&[^']])"]
+    (re-pattern (str "(?i)" boundary "\\Q" keyword "\\E" boundary) )))
+
+
 (defn contains-keyword? [record fieldspec ^String value]
-  (let [pattern (re-pattern (format "(?i)\\b\\Q%s\\E\\b"
-                                    value))]
+  (let [^Pattern pattern (keyword-regexp value)]
     (some (fn [^String fv] (.find (.matcher pattern fv)))
           (field-values record fieldspec))))
 
 
 (defn does-not-contain-keyword? [record fieldspec ^String value]
   (when-let [fields (field-values record fieldspec)]
-    (let [pattern (re-pattern (format "(?i)\\b\\Q%s\\E\\b"
-                                      value))]
+    (let [^Pattern pattern (keyword-regexp value)]
       (not-any? (fn [^String fv] (.find (.matcher pattern fv)))
                 fields))))
 
