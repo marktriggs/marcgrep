@@ -113,6 +113,8 @@
 ;;; Load and save the job queue
 ;;;
 
+(def ^:dynamic *snapshots-enabled* true)
+
 (defmethod print-dup java.util.Date [o w]
   (print-ctor o (fn [o w]
                   (print-dup (.getTime  o) w))
@@ -151,12 +153,14 @@
                          :file-ready? false)))))
                 queue)))))
 
+
 (defn snapshot-job-queue [& [key reference old-state new-state]]
-  (let [out-file (:state-file @config)]
-    (spit (file (str out-file ".tmp"))
-          (serialise-job-queue job-queue))
-    (.renameTo (file (str out-file ".tmp"))
-               (file out-file))))
+  (when *snapshots-enabled*
+    (let [out-file (:state-file @config)]
+      (spit (file (str out-file ".tmp"))
+            (serialise-job-queue job-queue))
+      (.renameTo (file (str out-file ".tmp"))
+                 (file out-file)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
