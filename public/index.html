@@ -151,94 +151,6 @@
     </div>
 
 
-    <script>
-      $(function () {
-          <!-- Wire up the buttons -->
-          $('#preview_query').click(function (evt) {
-              $('.querysection').dialog({width : 650, height: 650, modal: true});
-          });
-
-          $('.and_button').click(function (evt) {
-              add_clause(evt, "AND");
-          });
-
-          $('.or_button').click(function (evt) {
-              add_clause(evt, "OR");
-          });
-
-          $('#group_button').click(function (evt) {
-              merge_groups();
-          });
-
-          $('#ungroup_button').click(function (evt) {
-              split_groups();
-          });
-
-          $('#remove_button').click(function (evt) {
-              remove_groups();
-          });
-
-
-          $('.help_button').click(function (evt) { 
-              var help_div = $(evt.target).attr('id').substring(("help_").length);
-              var title = 'MARCgrep help';
-
-              if ($(evt.target).attr('title')) {
-                  title = title + ": " + $(evt.target).attr('title');
-              }
-
-              $('#' + help_div).animate({ scrollTop: 0 });
-
-              $('#' + help_div).dialog({width : $(window).width() * 0.80, 
-                                        height: $(window).height() * 0.80,
-                                        title: title,
-                                        modal: true});
-              return false;
-          });
-
-          $(':button').click(function (evt) { update_form(); });
-          $('input').change(function (evt) { update_form(); });
-          $('select').change(function (evt) { update_form(); });
-
-          $('#submit').click(function (evt) {
-              $('#added_job').slideDown(250);
-
-              var query = generate_query();
-              $.ajax({
-                  "type" : "POST",
-                  "url" : "add_job",
-                  "data" : {"query" : query,
-                            "field-options" : extract_output_options(),
-                            "source" : $('#selected_source').val(),
-                            "destination" : $('#selected_output').val()},
-                  "success" : function() {
-                      get_job_list();
-
-                      return false;
-                  }
-              });
-          });
-
-          $('#clear').click(function (evt) {
-              location.reload(true);
-          });
-
-          $('.bombs_away').click(function (evt) {
-              run_jobs();
-          });
-
-
-          update_form();
-
-          setInterval(function() { get_job_list(); return false; }, 2000);
-          get_job_list();
-          get_source_options();
-          get_output_options();
-      });
-    </script>
-
-
-
     <!-- Help sections -->
 
     <div id="target_field_help" class="help_text" style="display: none">
@@ -433,5 +345,93 @@
       </p>
 
     </div>
+
+
+    <script>
+      $(function () {
+          <!-- Wire up the buttons -->
+          $('#preview_query').click(function (evt) {
+              $('.querysection').dialog({width : 650, height: 650, modal: true});
+          });
+
+          $('.and_button').click(function (evt) {
+              add_clause(evt, "AND");
+          });
+
+          $('.or_button').click(function (evt) {
+              add_clause(evt, "OR");
+          });
+
+          $('#group_button').click(function (evt) {
+              merge_groups();
+          });
+
+          $('#ungroup_button').click(function (evt) {
+              split_groups();
+          });
+
+          $('#remove_button').click(function (evt) {
+              remove_groups();
+          });
+
+
+          $('.help_button').click(function (evt) { 
+              var help_div = $(evt.target).attr('id').substring(("help_").length);
+              var title = 'MARCgrep help';
+
+              if ($(evt.target).attr('title')) {
+                  title = title + ": " + $(evt.target).attr('title');
+              }
+
+              $('#' + help_div).animate({ scrollTop: 0 });
+
+              $('#' + help_div).dialog({width : $(window).width() * 0.80, 
+                                        height: $(window).height() * 0.80,
+                                        title: title,
+                                        modal: true});
+              return false;
+          });
+
+          $(':button').click(function (evt) { update_form(); });
+          $('input').change(function (evt) { update_form(); });
+          $('select').change(function (evt) { update_form(); });
+
+          $('#submit').click(function (evt) {
+              $('#added_job').slideDown(250);
+
+              var query = generate_query();
+              $.ajax({
+                  "type" : "POST",
+                  "url" : "add_job",
+                  "data" : {"query" : query,
+                            "field-options" : extract_output_options(),
+                            "source" : $('#selected_source').val(),
+                            "destination" : $('#selected_output').val()},
+                  "success" : function() {
+                      get_job_list();
+
+                      return false;
+                  }
+              });
+          });
+
+          $('#clear').click(function (evt) {
+              location.reload(true);
+          });
+
+          $('.bombs_away').click(function (evt) {
+              run_jobs();
+          });
+
+
+          update_form();
+          setInterval(function() { get_job_list(); return false; }, 2000);
+          get_job_list();
+          get_source_options();
+          get_output_options();
+      });
+    </script>
+
+
   </body>
 </html>
