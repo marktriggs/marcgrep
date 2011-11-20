@@ -16,7 +16,9 @@
                 [{:tag "245" :subfields [[\a "testing 123"]]}])
    (marc-record {"001" "45678"}
                 [{:tag "245" :subfields [[\a "the rain in Spain"]]}
-                 {:tag "100" :subfields [[\a "Hello, Mark"]]}])])
+                 {:tag "100" :subfields [[\a "Hello, Mark"]]}])
+   (marc-record {"001" "56789"}
+                [{:tag "245" :subfields [[\a "this is Mark's test record"]]}])])
 
 
 (defn suite-setup [f]
@@ -144,6 +146,22 @@
              :on test-dataset
              :matches ["23456"]
              :does-not-match ["34567"]))
+
+(deftest keyword-search-honours-apostrophe
+  (the-query {:operator "contains_keyword"
+              :field "*"
+              :value "mark"}
+             :on test-dataset
+             :matches ["45678"]
+             :does-not-match ["56789"]))
+
+(deftest keyword-search-honours-apostrophe-2
+  (the-query {:operator "contains_keyword"
+              :field "*"
+              :value "mark's"}
+             :on test-dataset
+             :matches ["56789"]
+             :does-not-match ["45678"]))
 
 (deftest keyword-search-negated
   (the-query {:operator "does_not_contain_keyword"
