@@ -18,7 +18,8 @@
                 [{:tag "245" :subfields [[\a "the rain in Spain"]]}
                  {:tag "100" :subfields [[\a "Hello, Mark"]]}])
    (marc-record {"001" "56789"}
-                [{:tag "245" :subfields [[\a "this is Mark's test record"]]}])])
+                [{:tag "245" :subfields [[\a "this is Mark's test record"]
+                                         [\a "with a repeated subfield a"]]}])])
 
 
 (defn suite-setup [f]
@@ -170,3 +171,20 @@
              :on test-dataset
              :matches ["34567"]
              :does-not-match ["23456"]))
+
+(deftest repeating-subfield
+  (the-query {:operator "repeats_subfield"
+              :field "245"
+              :value "a"}
+             :on test-dataset
+             :matches ["56789"]
+             :does-not-match ["12345"]))
+
+
+(deftest not-repeating-subfield
+  (the-query {:operator "does_not_repeat_subfield"
+              :field "245"
+              :value "a"}
+             :on test-dataset
+             :does-not-match ["56789"]
+             :matches ["12345"]))

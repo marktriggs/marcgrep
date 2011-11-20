@@ -64,9 +64,15 @@
                   <option value="does_not_match_regexp">doesn't match regular expression</option>
                   <option no_wildcard_field=1 no_value=1 value="repeats_field">appears more than once</option>
                   <option no_wildcard_field=1 no_value=1 value="does_not_repeat_field">appears exactly once</option>
+                  <option no_wildcard_field=1 single_subfield=1 value="repeats_subfield">repeats the subfield</option>
+                  <option no_wildcard_field=1 single_subfield=1 value="does_not_repeat_subfield">does not repeat the subfield</option>
                 </select>
                 <span id="predicate_docs">
                 </span>
+                <div style="display: none;" class="no_wildcards_please no_wildcards_style">
+                  <h5>Sorry!</h5>
+                  This criteria doesn't support wildcard queries
+                </div>
 
                 <script>
                     $(function () {
@@ -281,6 +287,27 @@
           <p>This criteria matches any record that has more than one
           occurrence (or exactly one occurrence) of the specified
           field.</p>
+
+          <p>Note that you cannot use wildcards with this criteria.</p>
+
+        </li>
+
+        <li><h4>repeats the subfield / does not repeat the subfield</h4>
+
+          <p>This criteria matches any record where an occurrence of the specified field contains more than one (or exactly one) instance of the given subfield.  For example, a query for:</p>
+
+          <div class="example">
+            <em>Where</em> the <em>245</em> field [<em>repeats the subfield</em>] <em>a</em>
+          </div>
+
+          <p>would match the following record:</p>
+
+          <div class="example_record">001 9969375
+            ...
+            245 10 $a Happy horse apple  $h [microform]  $a probably a mistake
+          </div>
+
+          <p>Note that this criteria can only check for a single repeated subfield, and that wildcards are not supported.</p>
 
         </li>
       </ul>

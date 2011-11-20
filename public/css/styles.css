@@ -326,3 +326,10 @@ table.cookbook {
 .regexp {
     font-family: monospace;
 }
+
+.no_wildcards_style {
+    font-size: 80%;
+    text-align: left;
+    margin-left: 5px;
+    width: 20em;
+}

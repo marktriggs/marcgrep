@@ -118,11 +118,21 @@ function update_form() {
         var selected = $(clause).find('.operator option:selected');
         $(clause).find('.field_value').attr('disabled', !!selected.attr('no_value'));
 
+        if (selected.attr('single_subfield')) {
+            $(clause).find('.field_value').attr('maxlength', 1);
+            $(clause).find('.field_value').val($(clause).find('.field_value').val().substring(0, 1));
+        } else {
+            $(clause).find('.field_value').attr('maxlength', '');
+        }
+
         if (selected.attr('no_wildcard_field')) {
             var target = $(clause).find('.target_field');
 
-            if (target.val() == "*") {
-                target.val('');
+            if (target.val().indexOf("*") >= 0) {
+                target.val(target.val().replace("*", ""));
+                $(clause).find('.no_wildcards_please').show();
+            } else {
+                $(clause).find('.no_wildcards_please:visible').hide();
             }
         }
     });

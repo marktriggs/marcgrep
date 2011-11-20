@@ -108,3 +108,24 @@
 (defn does-not-repeat-field? [record fieldspec value]
   (= (count (matching-fields record fieldspec))
      1))
+
+
+(defn has-repeating-subfield? [record fieldspec value]
+  (let [subfield-code (first value)]
+    (some (fn [^VariableField field]
+            (when (instance? DataField field)
+              (> (count (filter #(= (.getCode %) subfield-code)
+                                (.getSubfields ^DataField field)))
+                 1)))
+          (matching-fields record fieldspec))))
+
+
+(defn does-not-repeat-subfield? [record fieldspec value]
+  (let [subfield-code (first value)]
+    (every? (fn [^VariableField field]
+              (when (instance? DataField field)
+                (= (count (filter #(= (.getCode %) subfield-code)
+                                  (.getSubfields ^DataField field)))
+                   1)))
+            (matching-fields record fieldspec))))
+

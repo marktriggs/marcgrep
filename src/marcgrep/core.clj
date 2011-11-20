@@ -64,7 +64,14 @@
                                           {:case-sensitive true}]
                  "repeats_field" predicates/has-repeating-fields?
                  "does_not_repeat_field" predicates/does-not-repeat-field?
+                 "repeats_subfield" predicates/has-repeating-subfield?
+                 "does_not_repeat_subfield" predicates/does-not-repeat-subfield?
                  })
+
+
+(defn get-predicate [name]
+  (or (predicates name)
+      (throw (Exception. (str "Failed to find a predicate matching: " name)))))
 
 
 (defn parse-marc-field [s]
@@ -96,9 +103,9 @@
         (fn [record] (or (left-fn record) (right-fn record)))
         (fn [record] (and (left-fn record) (right-fn record)))))
 
-    (let [[predicate options] (if (vector? (predicates (:operator query)))
-                                (predicates (:operator query))
-                                [(predicates (:operator query))])
+    (let [[predicate options] (if (vector? (get-predicate (:operator query)))
+                                (get-predicate (:operator query))
+                                [(get-predicate (:operator query))])
           value (if (or (not (string? (:value query)))
                         (:case-sensitive options))
                   (:value query)
@@ -115,9 +122,9 @@
 
 (def ^:dynamic *snapshots-enabled* true)
 
-(defmethod print-dup java.util.Date [o w]
+(defmethod print-dup Date [^Date o w]
   (print-ctor o (fn [o w]
-                  (print-dup (.getTime  o) w))
+                  (print-dup (.getTime o) w))
               w))
 
 
@@ -287,7 +294,7 @@ running as many jobs as we're allowed, wait for an existing run to finish."
 
 
 
-(defn sha1 [s]
+(defn sha1 [^String s]
   (apply str (map #(format "%02x" %)
                   (.digest (MessageDigest/getInstance "SHA1")
                            (.getBytes s "UTF-8")))))
@@ -406,7 +413,7 @@ running as many jobs as we're allowed, wait for an existing run to finish."
                         @destinations))})
 
 
-(defn int-or-zero [s]
+(defn int-or-zero [^String s]
   (try (Integer. s)
        (catch NumberFormatException _ 0)))
 
