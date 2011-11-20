@@ -333,3 +333,15 @@ table.cookbook {
     margin-left: 5px;
     width: 20em;
 }
+
+.error_message_text {
+    margin-left: 1em;
+    font-weight: bold;
+}
+
+.error_trace_text {
+    white-space: pre-line;
+    font-family: monospace;
+    margin-bottom: 1em;
+    margin-left: 1em;
+}

@@ -515,3 +515,14 @@ function help_link(name, title)
 {
     return '<a class="help_button" title="' + title + '" id="help_' + name + '" href="#">?</a>'
 }
+
+
+function show_error(message, trace)
+{
+    console.log(message);
+
+    $("#error_message_text").html(message);
+    $("#error_trace_text").html(trace);
+
+    $('#error_pane').dialog({width : 650, height: 650, modal: true});
+}

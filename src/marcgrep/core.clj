@@ -10,7 +10,7 @@
   (:import [org.marc4j MarcXmlReader]
            [org.marc4j.marc Record VariableField DataField ControlField
             Subfield]
-           [java.io BufferedReader ByteArrayInputStream FileOutputStream]
+           [java.io BufferedReader ByteArrayInputStream FileOutputStream PrintWriter]
            [java.util Date]
            [java.security MessageDigest]
            [java.util.concurrent LinkedBlockingQueue])
@@ -64,9 +64,16 @@
                                           {:case-sensitive true}]
                  "repeats_field" predicates/has-repeating-fields?
                  "does_not_repeat_field" predicates/does-not-repeat-field?
-                 "repeats_subfield" predicates/has-repeating-subfield?
-                 "does_not_repeat_subfield" predicates/does-not-repeat-subfield?
-                 })
+                 "repeats_subfield" [predicates/has-repeating-subfield?
+                                     {:value-check (fn [s]
+                                                     (when-not (and (string? s)
+                                                                    (= (count s) 1))
+                                                       (throw (Exception. "The value for the repeated subfield check should be a single character"))))}]
+                 "does_not_repeat_subfield" [predicates/does-not-repeat-subfield?
+                                             {:value-check (fn [s]
+                                                             (when-not (and (string? s)
+                                                                            (= (count s) 1))
+                                                               (throw (Exception. "The value for the repeated subfield check should be a single character"))))}]})
 
 
 (defn get-predicate [name]
@@ -111,6 +118,11 @@
                   (:value query)
                   (.toLowerCase ^String (:value query)))
           fieldspec (parse-marc-field (:field query))]
+
+      ;; Give our value checking fn a chance to throw at this point.
+      (when (:value-check options)
+        ((:value-check options) value))
+
       (fn [record]
         (predicate record fieldspec value)))))
 
@@ -421,14 +433,24 @@ running as many jobs as we're allowed, wait for an existing run to finish."
 (defn handle-add-job
   "Add a new job to the job queue."
   [request]
-  (add-job ((:marc-source-list @config)
-            (int-or-zero (:source (:params request))))
-           (@destinations
-            (int-or-zero (:destination
-                          (:params request))))
-           (read-json (:query (:params request)))
-           (read-json (:field-options (:params request))))
-  "Added")
+  (try
+    (add-job ((:marc-source-list @config)
+              (int-or-zero (:source (:params request))))
+             (@destinations
+              (int-or-zero (:destination
+                            (:params request))))
+             (read-json (:query (:params request)))
+             (read-json (:field-options (:params request))))
+    "OK"
+    (catch Exception e
+      {:status 400
+       :headers {"Content-type" "application/json"}
+       :body (json-str {:message (.getMessage e)
+                        :trace (with-out-str
+                                 (let [pw (PrintWriter. *out*)]
+                                   (.printStackTrace e pw)
+                                   (.flush pw)))})})))
+
 
 
 (defroutes main-routes

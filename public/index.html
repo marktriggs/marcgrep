@@ -373,6 +373,23 @@
 
     </div>
 
+    <div id="error_pane" class="help_text" style="display: none">
+      <h4>Blimey!</h4>
+
+      <p>It looks like there was an error processing your most recent
+      request.  The message we got back from the server was:</p>
+
+      <div class="error_message_text" id="error_message_text"></div>
+
+      <p>If it helps, here is some diagnostic information the server
+      has given us:</p>
+
+      <div class="error_trace_text" id="error_trace_text"></div>
+
+      <p>Dreadfully sorry about all of this!</p>
+    </div>
+
+
 
     <script>
       $(function () {
@@ -436,9 +453,18 @@
                             "destination" : $('#selected_output').val()},
                   "success" : function() {
                       get_job_list();
+                      return false;
+                  },
+                  "error" : function (jqxhr, status, error) {
+                      if (jqxhr.status == 400 &&
+                          jqxhr.getResponseHeader("Content-type") == "application/json") {
+                          var error = JSON.parse(jqxhr.responseText);
+
+                          show_error(error.message, error.trace);
+                      }
 
                       return false;
-                  }
+                  },
               });
           });
 
