@@ -62,7 +62,7 @@
 
 
 (marcgrep.core/register-destination
- {:description "Plain text output"
+ {:description "Plain text file"
   :get-destination-for get-destination-for
   :get-output-for get-output-for
   :required-fields [{:name "field-list"

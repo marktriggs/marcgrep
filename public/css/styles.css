@@ -71,14 +71,15 @@ h5 {
 
 .source_label {
     width: auto;
+    margin-right: 45px;
 }
 
-.container {
-  border-top: solid #cdcdcd 1px;
-  border-bottom: solid #cdcdcd 1px;
-  padding-top: 10px;
-  padding-bottom: 20px;
-  overflow: auto;
+body > .container {
+    border-top: solid #cdcdcd 1px;
+    border-bottom: solid #cdcdcd 1px;
+    padding-top: 10px;
+    padding-bottom: 20px;
+    overflow: auto;
 }
 
 .clause_group_style {
@@ -125,6 +126,10 @@ h5 {
 
 .submit_button {
   margin-top: 25px;
+}
+
+.submit_button > .container {
+    margin-left: 2em;
 }
 
 #querydisplay {
@@ -345,3 +350,13 @@ table.cookbook {
     margin-bottom: 1em;
     margin-left: 1em;
 }
+
+.send_output_to {
+    display: inline-block;
+    margin-left: 50px;
+}
+
+.define_query {
+    margin-left: 2em;
+}
+
