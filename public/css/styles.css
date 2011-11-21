@@ -198,18 +198,24 @@ input#submit {
 table#job_list {
     width: 95%;
     margin-left: 1em;
-    border-bottom: solid black 1px;
+    border-bottom: solid #898989 2px;
+    margin-bottom: 50px;
 }
+
 
 table#job_list > tbody > tr > td {
     font-size: 80%;
 }
 
+table#job_list > tbody > tr > th:first-child {
+    padding-left: 5px;
+}
+
 table#job_list > tbody > tr > th {
     text-align: left;
     font-weight: bold;
-    border-top: solid black 2px;
-    border-bottom: solid black 1px;
+    border-top: solid #898989 2px;
+    border-bottom: solid #ababab 1px;
     padding-top: 5px;
     padding-bottom: 5px;
 }
