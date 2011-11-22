@@ -16,7 +16,8 @@
   (next [this]
     (when (.hasNext rdr)
       (.next rdr)))
-  (close [this]))
+  (close [this]
+    (.close rdr)))
 
 
 (defn all-marc-records [config]
