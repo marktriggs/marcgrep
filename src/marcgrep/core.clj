@@ -372,23 +372,25 @@ running as many jobs as we're allowed, wait for an existing run to finish."
   "The current job list in JSON format"
   []
   {:headers {"Content-type" "application/json"}
-   :body (json-str {:jobs (map (fn [job]
-                                 {:id (:id @job)
-                                  :submission-time (str (:submission-time @job))
-                                  :start-time (str (:start-time @job))
-                                  :completion-time (str (:completion-time @job))
-                                  :status (status-text (:status @job))
-                                  :hits (.format (java.text.DecimalFormat.)
-                                                 (:hits @job))
-                                  :records-checked (.format
-                                                    (java.text.DecimalFormat.)
-                                                    (:records-checked @job))
-                                  :file-available (:file-ready? @job)
-                                  :source (:description (:source @job))
-                                  :destination (:description
-                                                (:destination @job))
-                                  :query (:query-string @job)})
-                               @job-queue)})})
+   :body (json-str {:jobs
+                    (reverse
+                     (map (fn [job]
+                            {:id (:id @job)
+                             :submission-time (str (:submission-time @job))
+                             :start-time (str (:start-time @job))
+                             :completion-time (str (:completion-time @job))
+                             :status (status-text (:status @job))
+                             :hits (.format (java.text.DecimalFormat.)
+                                            (:hits @job))
+                             :records-checked (.format
+                                               (java.text.DecimalFormat.)
+                                               (:records-checked @job))
+                             :file-available (:file-ready? @job)
+                             :source (:description (:source @job))
+                             :destination (:description
+                                           (:destination @job))
+                             :query (:query-string @job)})
+                          @job-queue))})})
 
 
 (defn serve-file
