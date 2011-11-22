@@ -325,8 +325,18 @@ ul {
     font-size: 80%;
 }
 
+.help_text p {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
 .help_text * {
     max-width: 800px;
+}
+
+.help_text td {
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 .tagexample {
