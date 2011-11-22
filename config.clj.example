@@ -17,4 +17,9 @@
                     {:description "some other file I found"
                      :driver marcgrep.sources.marcxml-file
                      :marc-files ["/home/mst/tinyupdates.xml"]}]
+
+ :configure-jetty (fn [server]
+                    (let [[connector] (.getConnectors server)]
+                      (.setMaxIdleTime connector
+                                       5000)))
  }

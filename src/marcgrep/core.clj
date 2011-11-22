@@ -509,4 +509,8 @@ running as many jobs as we're allowed, wait for an existing run to finish."
       (swap! job-queue purge-deleted-jobs)
       (Thread/sleep 300000)))
 
-  (jetty/run-jetty (handler/api #'*app*) {:port (:listen-port @config)}))
+  (jetty/run-jetty (handler/api #'*app*)
+                   {:port (:listen-port @config)
+                    :configurator (eval (:configure-jetty @config))}))
+
+
