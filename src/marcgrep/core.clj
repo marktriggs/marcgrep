@@ -13,11 +13,12 @@
            [java.io BufferedReader ByteArrayInputStream FileOutputStream PrintWriter]
            [java.util Date]
            [java.security MessageDigest]
-           [java.util.concurrent LinkedBlockingQueue])
+           [java.util.concurrent LinkedBlockingQueue]
+           (org.mortbay.jetty Server Request Response))
   (:require [marcgrep.predicates :as predicates]
             [compojure.route :as route]
+            [ring.util.servlet :as servlet]
             [compojure.handler :as handler]
-            [ring.adapter.jetty :as jetty]
             [ring.middleware.params :as params]
             [clojure.contrib.repl-utils :as ru])
   (:gen-class))
@@ -509,8 +510,30 @@ running as many jobs as we're allowed, wait for an existing run to finish."
       (swap! job-queue purge-deleted-jobs)
       (Thread/sleep 300000)))
 
-  (jetty/run-jetty (handler/api #'*app*)
-                   {:port (:listen-port @config)
-                    :configurator (eval (:configure-jetty @config))}))
+
+  ;; Fire up Jetty
+  (let [handler (handler/api #'*app*)
+        connector (org.mortbay.jetty.nio.SelectChannelConnector.)
+        server (org.mortbay.jetty.Server.)
+        conf (eval (:configure-jetty @config))]
+    (doto connector
+      (.setPort (:listen-port @config)))
+    (doto server
+      (.addConnector connector)
+      (.setSendDateHeader true))
+
+    (when conf
+      (conf server))
+
+    (doto server
+      (.addHandler
+       (proxy [org.mortbay.jetty.handler.AbstractHandler] []
+         (handle [target ^Request request response dispatch]
+           (let [request-map  (servlet/build-request-map request)
+                 response-map (handler request-map)]
+             (when response-map
+               (servlet/update-servlet-response response response-map)
+               (.setHandled request true))))))
+      .start)))
 
 
