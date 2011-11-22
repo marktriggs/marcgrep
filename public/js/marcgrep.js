@@ -294,6 +294,15 @@ function render_job(job)
 
 var deleted_jobs_pending = false;
 
+function poll_job_list()
+{
+    setTimeout(function () {
+        get_job_list();
+        poll_job_list();
+    }, 2000);
+}
+
+
 function get_job_list()
 {
     if (deleted_jobs_pending) {

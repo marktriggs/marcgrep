@@ -490,10 +490,9 @@
 
 
             update_form();
-            setInterval(function() { get_job_list(); return false; }, 2000);
-            get_job_list();
             get_source_options();
             get_output_options();
+            poll_job_list();
         });
       </script>
     </div>
