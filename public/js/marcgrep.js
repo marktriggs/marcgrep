@@ -296,17 +296,17 @@ var deleted_jobs_pending = false;
 
 function poll_job_list()
 {
-    setTimeout(function () {
-        get_job_list();
-        poll_job_list();
-    }, 2000);
+    get_job_list(function () {
+        setTimeout(poll_job_list, 2000);
+    });
 }
 
 
-function get_job_list()
+function get_job_list(callback)
 {
     if (deleted_jobs_pending) {
         // Wait for the delete to finish before refreshing again.
+        callback();
         return;
     }
 
@@ -314,6 +314,9 @@ function get_job_list()
         "type" : "GET",
         "url" : "job_list",
         "data" : {timestamp : get_timestamp()},
+        "complete" : function(jqxhr, status) {
+            callback();
+        },
         "success" : function(data) {
             if (deleted_jobs_pending) {
                 // Wait for the delete to finish before refreshing again.
