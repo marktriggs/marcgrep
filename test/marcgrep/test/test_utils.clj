@@ -41,7 +41,6 @@
    (constantly
     (reify marcgrep.protocols/MarcDestination
       (init [this])
-      (getInputStream [this id])
       (write [this record]
         (swap! matches conj (-> record
                                 (.getVariableField "001")
