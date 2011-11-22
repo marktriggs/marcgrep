@@ -304,6 +304,10 @@ function poll_job_list()
 
 function get_job_list(callback)
 {
+    if (!callback) {
+        callback = function () {};
+    }
+
     if (deleted_jobs_pending) {
         // Wait for the delete to finish before refreshing again.
         callback();
