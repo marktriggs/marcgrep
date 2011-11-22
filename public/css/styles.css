@@ -112,7 +112,6 @@ h5 {
 
 .source_label {
     width: auto;
-    margin-right: 45px;
 }
 
 body > .container {
@@ -143,7 +142,7 @@ body > .container {
 .and_or_buttons {
   float: right;
   position: relative;
-  left: 2em;
+  left: 1em;
   margin-top: 20px;
   clear: both;
 }
@@ -161,7 +160,8 @@ body > .container {
 
 .target_field_container {
   display: inline-block;
- }
+}
+
 
 .group_button {display: none; float: right;}
 .ungroup_button {display: none; float: right;}
@@ -192,11 +192,10 @@ body > .container {
 }
 
 .source_options_style {
-  display: inline-block;
 }
 
 .output_options {
-  margin-left: 1em;
+  margin-left: 3.2em;
 }
 
 .output_options input[type=text] {
@@ -319,9 +318,7 @@ ul {
     font-weight: bold;
     display: inline-block;
     text-align: center;
-    width: 1em;
     text-decoration: none;
-    margin-right: 1em;
 }
 
 .help_text {
@@ -399,10 +396,14 @@ table.cookbook {
     margin-left: 1em;
 }
 
-.send_output_to {
-    display: inline-block;
-    margin-left: 50px;
+.send_output_to_label {
+    width: auto;
 }
+
+.selected_output_style {
+    display: block;
+}
+
 
 .define_query {
     margin-left: 2em;

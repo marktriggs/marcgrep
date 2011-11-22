@@ -467,7 +467,7 @@ function get_output_options()
         "url" : "destination_options",
         "data" : {timestamp : get_timestamp()},
         "success" : function(data) {
-            var output_selection = $('<select id="selected_output"></select>');
+            var output_selection = $('<select id="selected_output" class="selected_output_style"></select>');
             $('.output_options').append(output_selection);
 
             $(data).each(function(idx, option) {
