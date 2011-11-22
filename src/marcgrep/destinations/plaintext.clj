@@ -46,13 +46,19 @@
   (close [this] (.close writer)))
 
 
-(defn get-output-for [config job]
+(defn output-file [config job]
   (file (:output-dir @config)
         (str (:id @job) ".txt")))
 
 
+(defn get-output-for [config job]
+  (let [output (output-file config job)]
+    (when (.exists output)
+      output)))
+
+
 (defn get-destination-for [config job]
-  (let [outfile (get-output-for config job)
+  (let [outfile (output-file config job)
         outfh (writer outfile)]
     (PlaintextDestination. outfh
                            (when-not (empty? (-> @job :field-options :field-list))

@@ -329,7 +329,9 @@ running as many jobs as we're allowed, wait for an existing run to finish."
                      :file-ready? false
                      :status :not-started
                      :query-string query
-                     :id (sha1 (str query (java.util.Date.)))})]
+                     :id (sha1 (str query
+                                    (System/currentTimeMillis)
+                                    (rand-int 1000000)))})]
       (swap! job-queue (fn [queue elt] (conj (vec queue) elt))
              job)
       job)))
@@ -353,6 +355,22 @@ running as many jobs as we're allowed, wait for an existing run to finish."
     (swap! job assoc :status :deleted)
     (swap! job-queue #(remove #{job} %)))
   id)
+
+
+(defn purge-deleted-jobs
+  "Remove entries from the job queue where the underlying output file is gone."
+  [jobs]
+  (filter (fn [job]
+            (let [out ((-> @job :destination :get-output-for)
+                       config
+                       job)]
+              (when out
+                (try (.close out)
+                     (catch Exception _
+                       ;; Well, we tried...
+                       ))
+                true)))
+          jobs))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -485,5 +503,10 @@ running as many jobs as we're allowed, wait for an existing run to finish."
       (reset! job-queue (deserialise-job-queue (slurp state-file)))))
 
   (add-watch job-queue "queue-checkpointer" snapshot-job-queue)
+
+  (future
+    (while true
+      (swap! job-queue purge-deleted-jobs)
+      (Thread/sleep 300000)))
 
   (jetty/run-jetty (handler/api #'*app*) {:port (:listen-port @config)}))

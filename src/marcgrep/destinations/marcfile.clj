@@ -16,13 +16,19 @@
   (close [this] (.close writer)))
 
 
-(defn get-output-for [config job]
+(defn output-file [config job]
   (file (:output-dir @config)
         (str (:id @job) ".txt")))
 
 
+(defn get-output-for [config job]
+  (let [output (output-file config job)]
+    (when (.exists output)
+      output)))
+
+
 (defn get-destination-for [config job]
-  (let [outfile (get-output-for config job)
+  (let [outfile (output-file config job)
         outfh (MarcStreamWriter. (FileOutputStream. outfile) "UTF-8")]
     (MarcFileDestination. outfh)))
 
