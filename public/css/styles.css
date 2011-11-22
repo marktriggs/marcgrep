@@ -75,20 +75,21 @@ h1 {
 h2 {
   font-size: 150%;
   font-weight: bold;
-  margin-top: 20px;
-  margin-bottom: 20px;
 }
+
 
 h3 {
     font-weight: bold;
     font-size: 125%;
     margin-bottom: 20px;
     margin-left: 10px;
+    margin-top: 2em;
 }
 
 h3:before {
     content: "\2192";
     margin-right: 10px;
+    margin-left: 0.7em;
 }
 
 h4 {
@@ -292,6 +293,10 @@ table#job_list .job_query {
 
 }
 
+
+.joblist {
+    margin-top: 3em;
+}
 
 .joblist h2:after {
     content: "\2192";
