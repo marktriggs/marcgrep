@@ -13,481 +13,489 @@
   </head>
 
   <body>
-    <img class="logo" src="logo.png" />
+    <div class="header">
+      <div class="logo">
+        <img src="logo.png" />
+      </div>
+    </div>
 
-    <p>This is a tool for extracting all of the MARC records that match
-      some given criteria.</p>
-    <p>To get started, define the criteria of interest below and
-      submit your job to the system.</p>
+    <div class="marcgrep_container">
 
-    <select class="boolean_options" style="display: none">
-      <option value="AND">AND</option>
-      <option value="OR">OR</option>
-    </select>
-
-    <div class="container">
-      <h2><img class="step" src="1.png" /> Add jobs to the system</h2>
-
-      <div class="button_container">
-        <input id="remove_button"class="remove_button" type="button" value="remove"/>
-        <input id="group_button"class="group_button" type="button" value="group"/>
-        <input id="ungroup_button"class="ungroup_button" type="button" value="ungroup"/>
+      <div class="blurb">
+        <img class="bulb" src="bulb-small.png" />
+        <div class="blurb_text">
+          <p>MARCgrep is a tool for searching MARC data.</p>
+          <p>Just follow the steps below to get started.</p>
+        </div>
       </div>
 
-      <h3>Define your query...</h3>
-      <div class="define_query">
-        <div class="choose_source">
-          <span class="label source_label">Find all the records in</span>
-          <div class="source_options source_options_style">
-          </div>
+      <select class="boolean_options" style="display: none">
+        <option value="AND">AND</option>
+        <option value="OR">OR</option>
+      </select>
 
+      <div class="container">
+        <h2><img class="step" src="1.png" /> Add jobs to the system</h2>
+
+        <div class="button_container">
+          <input id="remove_button"class="remove_button" type="button" value="remove"/>
+          <input id="group_button"class="group_button" type="button" value="group"/>
+          <input id="ungroup_button"class="ungroup_button" type="button" value="ungroup"/>
         </div>
 
-        <div class="clause_group clause_group_style">
-          <div class="where_clause">
-            <span class="label boolean_label">Where</span>
-            <div class="clause">
-              <span>the</span>
-              <span class="target_field_container"></span>
-              <span>field</span>
-              <div class="predicate_choice">
-                <select class="operator">
-                  <option value="contains_keyword">exists and contains the keyword</option>
-                  <option value="does_not_contain_keyword">exists and doesn't contain the keyword</option>
-                  <option value="contains">exists and contains the string</option>
-                  <option value="does_not_contain">exists and doesn't contain the string</option>
-                  <option value="equals">exists and the entire field is</option>
-                  <option value="not_equals">exists and the entire field isn't</option>
-                  <option no_value=1 value="exists">exists</option>
-                  <option no_value=1 value="does_not_exist">doesn't exist</option>
-                  <option value="matches_regexp">matches regular expression</option>
-                  <option value="does_not_match_regexp">doesn't match regular expression</option>
-                  <option no_wildcard_field=1 no_value=1 value="repeats_field">appears more than once</option>
-                  <option no_wildcard_field=1 no_value=1 value="does_not_repeat_field">appears exactly once</option>
-                  <option no_wildcard_field=1 single_subfield=1 value="repeats_subfield">repeats the subfield</option>
-                  <option no_wildcard_field=1 single_subfield=1 value="does_not_repeat_subfield">does not repeat the subfield</option>
-                </select>
-                <span id="predicate_docs">
-                </span>
-                <div style="display: none;" class="no_wildcards_please no_wildcards_style">
-                  <h5>Sorry!</h5>
-                  This criteria doesn't support wildcard queries
+        <h3>Define your query...</h3>
+        <div class="define_query">
+          <div class="choose_source">
+            <span class="label source_label">Find all the records in</span>
+            <div class="source_options source_options_style">
+            </div>
+
+          </div>
+
+          <div class="clause_group clause_group_style">
+            <div class="where_clause">
+              <span class="label boolean_label">Where</span>
+              <div class="clause">
+                <span>the</span>
+                <span class="target_field_container"></span>
+                <span>field</span>
+                <div class="predicate_choice">
+                  <select class="operator">
+                    <option value="contains_keyword">exists and contains the keyword</option>
+                    <option value="does_not_contain_keyword">exists and doesn't contain the keyword</option>
+                    <option value="contains">exists and contains the string</option>
+                    <option value="does_not_contain">exists and doesn't contain the string</option>
+                    <option value="equals">exists and the entire field is</option>
+                    <option value="not_equals">exists and the entire field isn't</option>
+                    <option no_value=1 value="exists">exists</option>
+                    <option no_value=1 value="does_not_exist">doesn't exist</option>
+                    <option value="matches_regexp">matches regular expression</option>
+                    <option value="does_not_match_regexp">doesn't match regular expression</option>
+                    <option no_wildcard_field=1 no_value=1 value="repeats_field">appears more than once</option>
+                    <option no_wildcard_field=1 no_value=1 value="does_not_repeat_field">appears exactly once</option>
+                    <option no_wildcard_field=1 single_subfield=1 value="repeats_subfield">repeats the subfield</option>
+                    <option no_wildcard_field=1 single_subfield=1 value="does_not_repeat_subfield">does not repeat the subfield</option>
+                  </select>
+                  <span id="predicate_docs">
+                  </span>
+                  <div style="display: none;" class="no_wildcards_please no_wildcards_style">
+                    <h5>Sorry!</h5>
+                    This criteria doesn't support wildcard queries
+                  </div>
+
+                  <script>
+                      $(function () {
+                          $('#predicate_docs').html(help_link('predicate_help', 'Search criteria'));
+                      });
+                  </script>
+
                 </div>
-
-                <script>
-                    $(function () {
-                        $('#predicate_docs').html(help_link('predicate_help', 'Search criteria'));
-                    });
-                </script>
-
+                <span><input type="text" class="field_value" /></span>
               </div>
-              <span><input type="text" class="field_value" /></span>
+            </div>
+          </div>
+
+          <script type="text/javascript">
+            text_input($('.target_field_container'), 'target_field', 'target_field', '', '', help_link('target_field_help', 'Field selectors'));
+          </script>
+
+          <div class="and_or_buttons">
+            <input type="button" id="preview_query" value="Preview query" style="display: none"/>
+            <input type="button" class="and_button" value="AND"/>
+            <input type="button" class="or_button" value="OR"/>
+
+            <span id="boolean_docs">
+            </span>
+
+            <script>
+              $(function () {
+              $('#boolean_docs').html(help_link('boolean_help', 'Boolean queries'));
+              });
+            </script>
+
+
+          </div>
+
+
+          <div class="querysection" style="display: none">
+            <h2>Your Query</h2>
+            <div id="querydisplay">&nbsp;</div>
+          </div>
+        </div>
+
+
+        <div class="choose_output">
+          <h3>Choose an output option...</h3>
+            <div class="output_options">
+              <div class="send_output_to">Send the output of my job to</div>
+            </div>
+        </div>
+
+        <div id="submit_button" class="submit_button">
+          <h3>Submit your job</h3>
+          <div class="container">
+            <input id="submit" type="button" value="Submit job"/>
+            <input id="clear" type="button" value="Clear form"/>
+            <div id="added_job" style="display: none;" class="tip">
+              <h5>Hooray!</h5>
+              <p>You can repeat this step as many times as you like to
+                submit more jobs.</p>
+
+              <p>When you click the <em>"Run all jobs"</em> button below it will run all of your jobs at once.</p>
             </div>
           </div>
         </div>
+      </div>
 
-        <script type="text/javascript">
-          text_input($('.target_field_container'), 'target_field', 'target_field', '', '', help_link('target_field_help', 'Field selectors'));
-        </script>
+      <div class="joblist" style="display: none">
+        <h2>
+          <img class="step" src="2.png" /> Run your job(s)
+        </h2>
 
-        <div class="and_or_buttons">
-          <input type="button" id="preview_query" value="Preview query" style="display: none"/>
-          <input type="button" class="and_button" value="AND"/>
-          <input type="button" class="or_button" value="OR"/>
-
-          <span id="boolean_docs">
-          </span>
-
-          <script>
-            $(function () {
-            $('#boolean_docs').html(help_link('boolean_help', 'Boolean queries'));
-            });
-          </script>
-
-
+        <div class="job_control">
+          <input type="button" class="bombs_away" value="Run all jobs"/>
         </div>
 
 
-        <div class="querysection" style="display: none">
-          <h2>Your Query</h2>
-          <div id="querydisplay">&nbsp;</div>
-        </div>
-      </div>
-
-
-      <div class="choose_output">
-        <h3>Choose an output option...</h3>
-          <div class="output_options">
-            <div class="send_output_to">Send the output of my job to</div>
-          </div>
-      </div>
-
-      <div id="submit_button" class="submit_button">
-        <h3>Submit your job</h3>
-        <div class="container">
-          <input id="submit" type="button" value="Submit job"/>
-          <input id="clear" type="button" value="Clear form"/>
-          <div id="added_job" style="display: none;" class="tip">
-            <h5>Hooray!</h5>
-            <p>You can repeat this step as many times as you like to
-              submit more jobs.</p>
-
-            <p>When you click the <em>"Run all jobs"</em> button below it will run all of your jobs at once.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="joblist" style="display: none">
-      <h2>
-        <img class="step" src="2.png" /> Run your job(s)
-      </h2>
-
-      <div class="job_control">
-        <input type="button" class="bombs_away" value="Run all jobs"/>
-      </div>
-
-
-      <table id="job_list">
-        <tr>
-          <th>Query</th>
-          <th>Timing</th>
-          <th>Status</th>
-          <th>&nbsp;</th>
-          <th>&nbsp;</th>
-        </tr>
-      </table>
-    </div>
-
-
-    <!-- Help sections -->
-
-    <div id="target_field_help" class="help_text" style="display: none">
-      <p>MARCgrep can interpret field names in a couple of
-        different formats.  Here are some examples:</p>
-
-      <ul>
-        <li><span class="tagexample">245</span> &#8212 any field with a tag of 245 </li>
-        <li><span class="tagexample">245$a</span> &#8212 subfield $a of any 245 field</li>
-        <li><span class="tagexample">245!01$a</span> &#8212 subfield $a of any 245 field whose first indicator is "0" and whose second indicator is "1"</li>
-        <li><span class="tagexample">245!0#$a</span> &#8212 subfield $a of any 245 field whose first indicator is "0" and whose second indicator is any value</li>
-        <li><span class="tagexample">6*</span>&#8212 any 6XX field in the record</li>
-        <li><span class="tagexample">*</span>&#8212 any field in the record</li>
-      </ul>
-
-    </div>
-
-    <div id="predicate_help" class="help_text" style="display: none">
-
-      <p>MARCgrep can find records based on a range of criteria:</p>
-
-      <ul>
-        <li><h4>exists and contains the keyword / exists and doesn't contain the keyword</h4>
-
-          <p>These match (or exclude) records that contain particular
-          keywords anywhere in the specified field.  For example,
-          a record like:</p>
-
-          <div class="example_record">001 7961234
-            ...
-            245 10 $a Happy horse apple
-          </div>
-
-          <p>Would be matched by a query against the 245 field for
-          "apple" or "happy" or "Happy".  This criteria is case
-          insensitive.</p>
-
-        </li>
-
-
-        <li><h4>exists and contains the string / exists and doesn't contain the string</h4>
-
-          <p>These match (or exclude) records that contain your query
-          text anywhere in the specified field.  For example, a
-          record like:</p>
-
-          <div class="example_record">001 7961234
-            ...
-            245 10 $a Happy horse apple
-          </div>
-
-          <p>Would be matched by a query against the 245 field for
-          "ap" or "appl" or "happy" or "Happy".  This criteria is case
-          insensitive.</p>
-
-          <p>Note that the <em>"contains the keyword"</em> and <em>"contains the string"</em> are deceptively similar!  The keyword variant operates at the word level, so if a field contains:</p>
-
-          <div class="example">
-            I am testing MARCgrep and hope it works!
-          </div>
-
-          <p>Then a keyword query for "testing" would find a match, but a keyword query for "test" would not.  The keyword search requires a match on an entire word.</p>
-
-          <p>The string variant operates at the level of individual characters.  With the above example, you could find a match by searching for "test" or "te" or "Cgrep and hop".  Searching for any substring of the text will get you a match.  This is a lower-level search, but is useful for finding records containing things like strange diacritic characters, runs of space characters, and so on.</p>
-
-        </li>
-
-        <li><h4>exists and the entire field is / exists and the entire field isn't</h4>
-
-          <p>This criteria works in the same way as the previous one,
-          but requires a complete match on the value of a field.  The
-          previous record would not match on its 245 field unless your
-          query text was the complete <em>"happy horse apple"</em></p>
-
-          <p>As with the previous query, this is case insensitive.</p>
-        </li>
-
-        <li><h4>exists / doesn't exist</h4></li>
-
-        <p>This criteria matches any record that contains (or doesn't
-        contain) the tag you specify.  For example, using this
-        criteria with a tag of <em>001</em> will match every record.  Using a
-        tag of <em>245!#0$d</em> will only match records containing a 245 field
-        whose second indicator is zero and with a value for subfield d.</p>
-
-        <li><h4>matches regular expression / doesn't match regular expression</h4></li>
-
-        <p>This criteria lets you provide
-        a <a target="_blank" href="http://en.wikipedia.org/wiki/Regular_expression">regular
-        expression</a> that should be used to include (or exclude)
-        matches.  Some examples:</p>
-
-        <table class="cookbook">
-
+        <table id="job_list">
           <tr>
-            <th>Field</th><th>Regular expression</th><th>Description</th>
+            <th>Query</th>
+            <th>Timing</th>
+            <th>Status</th>
+            <th>&nbsp;</th>
+            <th>&nbsp;</th>
           </tr>
-
-          <tr>
-            <td>001</td>
-            <td class="regexp">000$</td>
-            <td>Any record whose Bib ID ends in three zeroes</td>
-          </tr>
-
-          <tr>
-            <td>008</td>
-            <td class="regexp">.{35}fre</td>
-            <td>Any record whose language code is "fre".  Here, "." means
-            "anything" and "{35}" means "35 of them", so you can read
-            this as "35 of anything followed by 'fre'".</td>
-          </tr>
-
-          <tr>
-            <td>245$h</td>
-            <td class="regexp">(Electronic|Manuscript)</td>
-            <td>Any record whose 245$h contains the string
-            "Electronic" or "Manuscript" (note: you could achieve the
-            same effect by constructing a boolean query)</td>
-          </tr>
-
         </table>
-
-        <p>Note that regular expressions, unlike the other criteria
-        shown so far, are case sensitive.</p>
-
-        <li><h4>appears more than once / appears exactly once</h4>
-
-          <p>This criteria matches any record that has more than one
-          occurrence (or exactly one occurrence) of the specified
-          field.</p>
-
-          <p>Note that you cannot use wildcards with this criteria.</p>
-
-        </li>
-
-        <li><h4>repeats the subfield / does not repeat the subfield</h4>
-
-          <p>This criteria matches any record where an occurrence of the specified field contains more than one (or exactly one) instance of the given subfield.  For example, a query for:</p>
-
-          <div class="example">
-            <em>Where</em> the <em>245</em> field [<em>repeats the subfield</em>] <em>a</em>
-          </div>
-
-          <p>would match the following record:</p>
-
-          <div class="example_record">001 9969375
-            ...
-            245 10 $a Happy horse apple  $h [microform]  $a probably a mistake
-          </div>
-
-          <p>Note that this criteria can only check for a single repeated subfield, and that wildcards are not supported.</p>
-
-        </li>
-      </ul>
-    </div>
-
-    <div id="boolean_help" class="help_text" style="display: none">
-      <p>MARCgrep lets you combine multiple search clauses together
-      using boolean operators.  This feature makes it possible to
-      construct multi-part searches like:</p>
-
-      <div class="example">
-      "Find the records containing the word 'voyage' in the 245$a that
-       have more than one 100 field."
       </div>
 
-      <p>You can add additional clauses to your query by clicking the
-      <input type="button" value="AND" /> and <input type="button"
-      value="OR" /> buttons.  Each clause can have a different search
-      criteria and query text.</p>
 
-      <h4>Grouping clauses</h4>
-      <p>
-        You might occasionally find that you need more control over
-        the way your boolean queries are interpreted.  For example,
-        consider the query:
+      <!-- Help sections -->
+
+      <div id="target_field_help" class="help_text" style="display: none">
+        <p>MARCgrep can interpret field names in a couple of
+          different formats.  Here are some examples:</p>
+
+        <ul>
+          <li><span class="tagexample">245</span> &#8212 any field with a tag of 245 </li>
+          <li><span class="tagexample">245$a</span> &#8212 subfield $a of any 245 field</li>
+          <li><span class="tagexample">245!01$a</span> &#8212 subfield $a of any 245 field whose first indicator is "0" and whose second indicator is "1"</li>
+          <li><span class="tagexample">245!0#$a</span> &#8212 subfield $a of any 245 field whose first indicator is "0" and whose second indicator is any value</li>
+          <li><span class="tagexample">6*</span>&#8212 any 6XX field in the record</li>
+          <li><span class="tagexample">*</span>&#8212 any field in the record</li>
+        </ul>
+
+      </div>
+
+      <div id="predicate_help" class="help_text" style="display: none">
+
+        <p>MARCgrep can find records based on a range of criteria:</p>
+
+        <ul>
+          <li><h4>exists and contains the keyword / exists and doesn't contain the keyword</h4>
+
+            <p>These match (or exclude) records that contain particular
+            keywords anywhere in the specified field.  For example,
+            a record like:</p>
+
+            <div class="example_record">001 7961234
+              ...
+              245 10 $a Happy horse apple
+            </div>
+
+            <p>Would be matched by a query against the 245 field for
+            "apple" or "happy" or "Happy".  This criteria is case
+            insensitive.</p>
+
+          </li>
+
+
+          <li><h4>exists and contains the string / exists and doesn't contain the string</h4>
+
+            <p>These match (or exclude) records that contain your query
+            text anywhere in the specified field.  For example, a
+            record like:</p>
+
+            <div class="example_record">001 7961234
+              ...
+              245 10 $a Happy horse apple
+            </div>
+
+            <p>Would be matched by a query against the 245 field for
+            "ap" or "appl" or "happy" or "Happy".  This criteria is case
+            insensitive.</p>
+
+            <p>Note that the <em>"contains the keyword"</em> and <em>"contains the string"</em> are deceptively similar!  The keyword variant operates at the word level, so if a field contains:</p>
+
+            <div class="example">
+              I am testing MARCgrep and hope it works!
+            </div>
+
+            <p>Then a keyword query for "testing" would find a match, but a keyword query for "test" would not.  The keyword search requires a match on an entire word.</p>
+
+            <p>The string variant operates at the level of individual characters.  With the above example, you could find a match by searching for "test" or "te" or "Cgrep and hop".  Searching for any substring of the text will get you a match.  This is a lower-level search, but is useful for finding records containing things like strange diacritic characters, runs of space characters, and so on.</p>
+
+          </li>
+
+          <li><h4>exists and the entire field is / exists and the entire field isn't</h4>
+
+            <p>This criteria works in the same way as the previous one,
+            but requires a complete match on the value of a field.  The
+            previous record would not match on its 245 field unless your
+            query text was the complete <em>"happy horse apple"</em></p>
+
+            <p>As with the previous query, this is case insensitive.</p>
+          </li>
+
+          <li><h4>exists / doesn't exist</h4></li>
+
+          <p>This criteria matches any record that contains (or doesn't
+          contain) the tag you specify.  For example, using this
+          criteria with a tag of <em>001</em> will match every record.  Using a
+          tag of <em>245!#0$d</em> will only match records containing a 245 field
+          whose second indicator is zero and with a value for subfield d.</p>
+
+          <li><h4>matches regular expression / doesn't match regular expression</h4></li>
+
+          <p>This criteria lets you provide
+          a <a target="_blank" href="http://en.wikipedia.org/wiki/Regular_expression">regular
+          expression</a> that should be used to include (or exclude)
+          matches.  Some examples:</p>
+
+          <table class="cookbook">
+
+            <tr>
+              <th>Field</th><th>Regular expression</th><th>Description</th>
+            </tr>
+
+            <tr>
+              <td>001</td>
+              <td class="regexp">000$</td>
+              <td>Any record whose Bib ID ends in three zeroes</td>
+            </tr>
+
+            <tr>
+              <td>008</td>
+              <td class="regexp">.{35}fre</td>
+              <td>Any record whose language code is "fre".  Here, "." means
+              "anything" and "{35}" means "35 of them", so you can read
+              this as "35 of anything followed by 'fre'".</td>
+            </tr>
+
+            <tr>
+              <td>245$h</td>
+              <td class="regexp">(Electronic|Manuscript)</td>
+              <td>Any record whose 245$h contains the string
+              "Electronic" or "Manuscript" (note: you could achieve the
+              same effect by constructing a boolean query)</td>
+            </tr>
+
+          </table>
+
+          <p>Note that regular expressions, unlike the other criteria
+          shown so far, are case sensitive.</p>
+
+          <li><h4>appears more than once / appears exactly once</h4>
+
+            <p>This criteria matches any record that has more than one
+            occurrence (or exactly one occurrence) of the specified
+            field.</p>
+
+            <p>Note that you cannot use wildcards with this criteria.</p>
+
+          </li>
+
+          <li><h4>repeats the subfield / does not repeat the subfield</h4>
+
+            <p>This criteria matches any record where an occurrence of the specified field contains more than one (or exactly one) instance of the given subfield.  For example, a query for:</p>
+
+            <div class="example">
+              <em>Where</em> the <em>245</em> field [<em>repeats the subfield</em>] <em>a</em>
+            </div>
+
+            <p>would match the following record:</p>
+
+            <div class="example_record">001 9969375
+              ...
+              245 10 $a Happy horse apple  $h [microform]  $a probably a mistake
+            </div>
+
+            <p>Note that this criteria can only check for a single repeated subfield, and that wildcards are not supported.</p>
+
+          </li>
+        </ul>
+      </div>
+
+      <div id="boolean_help" class="help_text" style="display: none">
+        <p>MARCgrep lets you combine multiple search clauses together
+        using boolean operators.  This feature makes it possible to
+        construct multi-part searches like:</p>
 
         <div class="example">
-          "the 245$a contains 'gulliver'" <em>AND</em> "the 100 contains 'Swift'" <em>OR</em> "the 100 contains 'Austen'"
+        "Find the records containing the word 'voyage' in the 245$a that
+         have more than one 100 field."
         </div>
 
-        <p>It's not immediately clear whether we meant:</p>
+        <p>You can add additional clauses to your query by clicking the
+        <input type="button" value="AND" /> and <input type="button"
+        value="OR" /> buttons.  Each clause can have a different search
+        criteria and query text.</p>
 
-        <div class="example">
-          <em>(</em> "the 245$a contains 'gulliver'" <em>AND</em> "the 100 contains 'Swift'" <em>)</em> <em>OR</em> "the 100 contains 'Austen'"
-        </div>
+        <h4>Grouping clauses</h4>
+        <p>
+          You might occasionally find that you need more control over
+          the way your boolean queries are interpreted.  For example,
+          consider the query:
 
-        <p>Yielding records with 'gulliver' in the 245 and 'Swift' in
-        the 100, plus all records with 'Austen' in the 100; or</p>
+          <div class="example">
+            "the 245$a contains 'gulliver'" <em>AND</em> "the 100 contains 'Swift'" <em>OR</em> "the 100 contains 'Austen'"
+          </div>
 
-        <div class="example">
-          "the 245$a contains 'gulliver'" <em>AND</em> <em>(</em> "the 100 contains 'Swift'" <em>OR</em> "the 100 contains 'Austen'" <em>)</em> 
-        </div>
+          <p>It's not immediately clear whether we meant:</p>
 
-        <p>Yielding only records with 'gulliver' in the 245 and one of
-        'Austen' or 'Swift' in the 100.</p>
+          <div class="example">
+            <em>(</em> "the 245$a contains 'gulliver'" <em>AND</em> "the 100 contains 'Swift'" <em>)</em> <em>OR</em> "the 100 contains 'Austen'"
+          </div>
 
-        <p>If in doubt, it doesn't hurt to be explicit about what you
-        mean.  You can group clauses together by clicking the checkbox
-        (<input type="checkbox" />) next to each clause, and then
-        clicking the <input type="button" value="group" /> button that
-        subsequently appears.  Clauses that are grouped together are
-        connected by a vertical line, and you can split them apart
-        again by re-selecting the checkbox and clicking
-        <input type="button" value="ungroup" /></p>
+          <p>Yielding records with 'gulliver' in the 245 and 'Swift' in
+          the 100, plus all records with 'Austen' in the 100; or</p>
 
-        <p>To see how your query will be interpreted by MARCgrep, you
-        can click the <input type="button" value="Preview query" /> button at any
-        time.  This shows the raw query that will be passed to the
-        MARCgrep engine.</p>
+          <div class="example">
+            "the 245$a contains 'gulliver'" <em>AND</em> <em>(</em> "the 100 contains 'Swift'" <em>OR</em> "the 100 contains 'Austen'" <em>)</em> 
+          </div>
+
+          <p>Yielding only records with 'gulliver' in the 245 and one of
+          'Austen' or 'Swift' in the 100.</p>
+
+          <p>If in doubt, it doesn't hurt to be explicit about what you
+          mean.  You can group clauses together by clicking the checkbox
+          (<input type="checkbox" />) next to each clause, and then
+          clicking the <input type="button" value="group" /> button that
+          subsequently appears.  Clauses that are grouped together are
+          connected by a vertical line, and you can split them apart
+          again by re-selecting the checkbox and clicking
+          <input type="button" value="ungroup" /></p>
+
+          <p>To see how your query will be interpreted by MARCgrep, you
+          can click the <input type="button" value="Preview query" /> button at any
+          time.  This shows the raw query that will be passed to the
+          MARCgrep engine.</p>
 
 
-      </p>
+        </p>
 
+      </div>
+
+      <div id="error_pane" class="help_text" style="display: none">
+        <h4>Blimey!</h4>
+
+        <p>It looks like there was an error processing your most recent
+        request.  The message we got back from the server was:</p>
+
+        <div class="error_message_text" id="error_message_text"></div>
+
+        <p>If it helps, here is some diagnostic information the server
+        has given us:</p>
+
+        <div class="error_trace_text" id="error_trace_text"></div>
+
+        <p>Dreadfully sorry about all of this!</p>
+      </div>
+
+
+
+      <script>
+        $(function () {
+            <!-- Wire up the buttons -->
+            $('#preview_query').click(function (evt) {
+                $('.querysection').dialog({width : 650, height: 650, modal: true});
+            });
+
+            $('.and_button').click(function (evt) {
+                add_clause(evt, "AND");
+            });
+
+            $('.or_button').click(function (evt) {
+                add_clause(evt, "OR");
+            });
+
+            $('#group_button').click(function (evt) {
+                merge_groups();
+            });
+
+            $('#ungroup_button').click(function (evt) {
+                split_groups();
+            });
+
+            $('#remove_button').click(function (evt) {
+                remove_groups();
+            });
+
+
+            $('.help_button').click(function (evt) { 
+                var help_div = $(evt.target).attr('id').substring(("help_").length);
+                var title = 'MARCgrep help';
+
+                if ($(evt.target).attr('title')) {
+                    title = title + ": " + $(evt.target).attr('title');
+                }
+
+                $('#' + help_div).animate({ scrollTop: 0 });
+
+                $('#' + help_div).dialog({width : $(window).width() * 0.80, 
+                                          height: $(window).height() * 0.80,
+                                          title: title,
+                                          modal: true});
+                return false;
+            });
+
+            $(':button').click(function (evt) { update_form(); });
+            $('input').change(function (evt) { update_form(); });
+            $('select').change(function (evt) { update_form(); });
+
+            $('#submit').click(function (evt) {
+                $('#added_job').slideDown(250);
+
+                var query = generate_query();
+                $.ajax({
+                    "type" : "POST",
+                    "url" : "add_job",
+                    "data" : {"query" : query,
+                              "field-options" : extract_output_options(),
+                              "source" : $('#selected_source').val(),
+                              "destination" : $('#selected_output').val()},
+                    "success" : function() {
+                        get_job_list();
+                        return false;
+                    },
+                    "error" : function (jqxhr, status, error) {
+                        if (jqxhr.status == 400 &&
+                            jqxhr.getResponseHeader("Content-type") == "application/json") {
+                            var error = JSON.parse(jqxhr.responseText);
+
+                            show_error(error.message, error.trace);
+                        }
+
+                        return false;
+                    },
+                });
+            });
+
+            $('#clear').click(function (evt) {
+                location.reload(true);
+            });
+
+            $('.bombs_away').click(function (evt) {
+                run_jobs();
+            });
+
+
+            update_form();
+            setInterval(function() { get_job_list(); return false; }, 2000);
+            get_job_list();
+            get_source_options();
+            get_output_options();
+        });
+      </script>
     </div>
-
-    <div id="error_pane" class="help_text" style="display: none">
-      <h4>Blimey!</h4>
-
-      <p>It looks like there was an error processing your most recent
-      request.  The message we got back from the server was:</p>
-
-      <div class="error_message_text" id="error_message_text"></div>
-
-      <p>If it helps, here is some diagnostic information the server
-      has given us:</p>
-
-      <div class="error_trace_text" id="error_trace_text"></div>
-
-      <p>Dreadfully sorry about all of this!</p>
-    </div>
-
-
-
-    <script>
-      $(function () {
-          <!-- Wire up the buttons -->
-          $('#preview_query').click(function (evt) {
-              $('.querysection').dialog({width : 650, height: 650, modal: true});
-          });
-
-          $('.and_button').click(function (evt) {
-              add_clause(evt, "AND");
-          });
-
-          $('.or_button').click(function (evt) {
-              add_clause(evt, "OR");
-          });
-
-          $('#group_button').click(function (evt) {
-              merge_groups();
-          });
-
-          $('#ungroup_button').click(function (evt) {
-              split_groups();
-          });
-
-          $('#remove_button').click(function (evt) {
-              remove_groups();
-          });
-
-
-          $('.help_button').click(function (evt) { 
-              var help_div = $(evt.target).attr('id').substring(("help_").length);
-              var title = 'MARCgrep help';
-
-              if ($(evt.target).attr('title')) {
-                  title = title + ": " + $(evt.target).attr('title');
-              }
-
-              $('#' + help_div).animate({ scrollTop: 0 });
-
-              $('#' + help_div).dialog({width : $(window).width() * 0.80, 
-                                        height: $(window).height() * 0.80,
-                                        title: title,
-                                        modal: true});
-              return false;
-          });
-
-          $(':button').click(function (evt) { update_form(); });
-          $('input').change(function (evt) { update_form(); });
-          $('select').change(function (evt) { update_form(); });
-
-          $('#submit').click(function (evt) {
-              $('#added_job').slideDown(250);
-
-              var query = generate_query();
-              $.ajax({
-                  "type" : "POST",
-                  "url" : "add_job",
-                  "data" : {"query" : query,
-                            "field-options" : extract_output_options(),
-                            "source" : $('#selected_source').val(),
-                            "destination" : $('#selected_output').val()},
-                  "success" : function() {
-                      get_job_list();
-                      return false;
-                  },
-                  "error" : function (jqxhr, status, error) {
-                      if (jqxhr.status == 400 &&
-                          jqxhr.getResponseHeader("Content-type") == "application/json") {
-                          var error = JSON.parse(jqxhr.responseText);
-
-                          show_error(error.message, error.trace);
-                      }
-
-                      return false;
-                  },
-              });
-          });
-
-          $('#clear').click(function (evt) {
-              location.reload(true);
-          });
-
-          $('.bombs_away').click(function (evt) {
-              run_jobs();
-          });
-
-
-          update_form();
-          setInterval(function() { get_job_list(); return false; }, 2000);
-          get_job_list();
-          get_source_options();
-          get_output_options();
-      });
-    </script>
-
-
   </body>
 </html>
