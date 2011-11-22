@@ -362,15 +362,17 @@ running as many jobs as we're allowed, wait for an existing run to finish."
   "Remove entries from the job queue where the underlying output file is gone."
   [jobs]
   (filter (fn [job]
-            (let [out ((-> @job :destination :get-output-for)
-                       config
-                       job)]
-              (when out
-                (try (.close out)
-                     (catch Exception _
-                       ;; Well, we tried...
-                       ))
-                true)))
+            (if (:file-ready? @job)
+              (let [out ((-> @job :destination :get-output-for)
+                         config
+                         job)]
+                (when out
+                  (try (.close out)
+                       (catch Exception _
+                         ;; Well, we tried...
+                         ))
+                  true))
+              true))
           jobs))
 
 
@@ -510,14 +512,15 @@ running as many jobs as we're allowed, wait for an existing run to finish."
       (swap! job-queue purge-deleted-jobs)
       (Thread/sleep 300000)))
 
-
   ;; Fire up Jetty
   (let [handler (handler/api #'*app*)
         connector (org.mortbay.jetty.nio.SelectChannelConnector.)
         server (org.mortbay.jetty.Server.)
         conf (eval (:configure-jetty @config))]
+
     (doto connector
       (.setPort (:listen-port @config)))
+
     (doto server
       (.addConnector connector)
       (.setSendDateHeader true))
@@ -534,6 +537,6 @@ running as many jobs as we're allowed, wait for an existing run to finish."
              (when response-map
                (servlet/update-servlet-response response response-map)
                (.setHandled request true))))))
-      .start)))
+      .start)
 
-
+    (.join server)))
