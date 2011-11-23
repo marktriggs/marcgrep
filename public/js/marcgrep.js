@@ -348,6 +348,8 @@ function return_delete_button(delete_button)
 }
 
 
+var last_job_list_version = -1;
+
 function get_job_list(callback)
 {
     if (!callback) {
@@ -373,6 +375,12 @@ function get_job_list(callback)
                 return;
             }
 
+            if (data['version'] == last_job_list_version) {
+                // No change so there's nothing to do.
+                return;
+            }
+
+            last_job_list_version = data['version'];
             var list = [];
 
             $(data['jobs']).each(function(idx, job) {
