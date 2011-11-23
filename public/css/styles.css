@@ -12,8 +12,8 @@ body {
 
 .marcgrep_container {
     background-color: white;
-    border-left: solid #efefef 1px;
-    border-right: solid #efefef 1px;
+    border-left: solid #efefef 5px;
+    border-right: solid #efefef 5px;
     width: 960px;
     font-face: sans-serif;
     line-height: 1.2em;
