@@ -307,7 +307,7 @@ function delete_button_clicked(event)
     var job_id = $(event.target).data('job_id');
 
     deleted_jobs_pending = true;
-    $(event.target).parents('tr.job:first').remove();
+    $(event.target).parents('tr.job:first').empty().remove();
     $.ajax({
         "type" : "POST",
         "url" : "delete_job",
@@ -318,6 +318,34 @@ function delete_button_clicked(event)
         }});
 }
 
+
+// Creating a new delete button for each entry for each refresh seems
+// a little too heavyweight and eats a lot of memory.  Reuse them
+// instead.  Muh.
+var delete_buttons = [];
+
+function delete_button_for(job_id)
+{
+    var delete_button = delete_buttons.pop();
+
+    if (!delete_button) {
+        // Need a new one.
+        delete_button = $('<input class="delete_job" type="button" value="delete"/>');
+        delete_button.click(delete_button_clicked);
+    }
+
+    delete_button = $(delete_button);
+
+    delete_button.data('job_id', job_id);
+
+    return delete_button;
+}
+
+
+function return_delete_button(delete_button)
+{
+    delete_buttons.push(delete_button);
+}
 
 
 function get_job_list(callback)
@@ -372,11 +400,7 @@ function get_job_list(callback)
                     row.append('<td>&nbsp;</td>');
                 }
 
-                var delete_button = $('<input class="delete_job" type="button" value="delete"/>');
-
-                delete_button.click(delete_button_clicked);
-
-                delete_button.data('job_id', job['id']);
+                var delete_button = delete_button_for(job['id']);
                 row.append(delete_button);
                 $(delete_button).wrap('<td />');
 
@@ -388,6 +412,12 @@ function get_job_list(callback)
             // Otherwise IE insists on scrolling randomly and jumping
             // around.
             var job_entries = $('.job');
+
+            $(job_entries).find('.delete_job').each(function (idx, button) {
+                // Re-use precious buttons
+                $(button).detach();
+                return_delete_button(button);
+            });
 
             for (var i = 0; i < Math.max(job_entries.size(), list.length); i++) {
                 if (i < list.length) {
