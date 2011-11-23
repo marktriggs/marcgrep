@@ -197,7 +197,7 @@ function clause_to_obj(clause) {
         value = valueNode.val();
     }
 
-    subquery = {"operator" : $(clause).find('.operator').val(),
+    var subquery = {"operator" : $(clause).find('.operator').val(),
                 "field" : $(clause).find('.target_field:first').val(),
                 "value" : value};
 
@@ -297,9 +297,27 @@ var deleted_jobs_pending = false;
 function poll_job_list()
 {
     get_job_list(function () {
-        setTimeout(poll_job_list, 2000);
+        setTimeout(poll_job_list, 500);
     });
 }
+
+
+function delete_button_clicked(event)
+{
+    var job_id = $(event.target).data('job_id');
+
+    deleted_jobs_pending = true;
+    $(event.target).parents('tr.job:first').remove();
+    $.ajax({
+        "type" : "POST",
+        "url" : "delete_job",
+        "data" : {"id" : job_id},
+        "complete" : function(hr, status) {
+            deleted_jobs_pending = false;
+            get_job_list(); return false;
+        }});
+}
+
 
 
 function get_job_list(callback)
@@ -355,6 +373,9 @@ function get_job_list(callback)
                 }
 
                 var delete_button = $('<input class="delete_job" type="button" value="delete"/>');
+
+                delete_button.click(delete_button_clicked);
+
                 delete_button.data('job_id', job['id']);
                 row.append(delete_button);
                 $(delete_button).wrap('<td />');
@@ -362,7 +383,6 @@ function get_job_list(callback)
                 list.push(row);
             });
 
-            
             // Replace the existing divs one by one to stop the
             // overall container height changing if possible.
             // Otherwise IE insists on scrolling randomly and jumping
@@ -373,29 +393,17 @@ function get_job_list(callback)
                 if (i < list.length) {
                     if (job_entries.get(i)) {
                         $(list[i]).height($(job_entries.get(i)).height());
-                        $(job_entries.get(i)).replaceWith(list[i]);
+                        var zapped = job_entries.get(i);
+                        $(zapped).replaceWith(list[i]);
+                        $(zapped).empty().remove();
                     } else {
                         $('#job_list').append(list[i]);
                     }
                 } else {
-                    $(job_entries.get(i)).remove();
+                    $(job_entries.get(i)).empty().remove();
                 }
             }
 
-            $('.delete_job').click(function(event) {
-                var job_id = $(event.target).data('job_id');
-
-                deleted_jobs_pending = true;
-                $(event.target).parents('tr.job:first').remove();
-                $.ajax({
-                    "type" : "POST",
-                    "url" : "delete_job",
-                    "data" : {"id" : job_id},
-                    "complete" : function(hr, status) {
-                        deleted_jobs_pending = false;
-                        get_job_list(); return false;
-                    }});
-            });
 
             if ($('.job').size() > 0) {
                 if (!$('.joblist').is(":visible")) {
