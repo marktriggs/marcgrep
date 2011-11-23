@@ -297,7 +297,7 @@ var deleted_jobs_pending = false;
 function poll_job_list()
 {
     get_job_list(function () {
-        setTimeout(poll_job_list, 500);
+        setTimeout(poll_job_list, 2000);
     });
 }
 
