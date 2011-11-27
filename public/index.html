@@ -4,12 +4,12 @@
   <head>
     <link type="text/css" href="css/flick/jquery-ui-1.8.16.custom.css" rel="Stylesheet" />	
     <link rel="stylesheet" type="text/css" href="css/reset.css" />
-    <link rel="stylesheet" type="text/css" href="css/styles.css?v=1322019962" />
+    <link rel="stylesheet" type="text/css" href="css/styles.css?v=1322433870" />
 
     <script src="js/jquery-1.6.2.min.js"></script>
     <script src="js/jquery-ui-1.8.16.custom.min.js"></script>
     <script src="js/json2.js"></script>
-    <script src="js/marcgrep.js?v=1322019962"></script>
+    <script src="js/marcgrep.js?v=1322433870"></script>
   </head>
 
   <body>
@@ -175,14 +175,18 @@
         <p>MARCgrep can interpret field names in a couple of
           different formats.  Here are some examples:</p>
 
-        <ul>
-          <li><span class="tagexample">245</span> &#8212 any field with a tag of 245 </li>
-          <li><span class="tagexample">245$a</span> &#8212 subfield $a of any 245 field</li>
-          <li><span class="tagexample">245!01$a</span> &#8212 subfield $a of any 245 field whose first indicator is "0" and whose second indicator is "1"</li>
-          <li><span class="tagexample">245!0#$a</span> &#8212 subfield $a of any 245 field whose first indicator is "0" and whose second indicator is any value</li>
-          <li><span class="tagexample">6*</span>&#8212 any 6XX field in the record</li>
-          <li><span class="tagexample">*</span>&#8212 any field in the record</li>
-        </ul>
+        <table>
+          <tr><th>Field specification</th><th>Meaning</th></tr>
+          <tr><td><span class="tagexample">245</span> </td><td>any field with a tag of 245 </td></tr>
+          <tr><td><span class="tagexample">245$a</span> </td><td>subfield $a of any 245 field</td></tr>
+          <tr><td><span class="tagexample">245!01$a</span> </td><td>subfield $a of any 245 field whose first indicator is "0" and whose second indicator is "1"</td></tr>
+          <tr><td><span class="tagexample">245!0#$a</span> </td><td>subfield $a of any 245 field whose first indicator is "0" and whose second indicator is any value</td></tr>
+          <tr><td><span class="tagexample">245![0-5]#$a</span> </td><td>subfield $a of any 245 field whose first indicator is between 0 and 5 and whose second indicator is any value (extended indicator match syntax)</td></tr>
+          <tr><td><span class="tagexample">245!0[^3]$a</span> </td><td>subfield $a of any 245 field whose first indicator is "0" and whose second indicator is not "3"</td></tr>
+          <tr><td><span class="tagexample">245![02468][13579]$a</span> </td><td>subfield $a of any 245 field whose first indicator is an even digit and whose second indicator is an odd digit (OK, a silly example)</td></tr>
+          <tr><td><span class="tagexample">6*</span></td><td>any 6XX field in the record</td></tr>
+          <tr><td><span class="tagexample">*</span></td><td>any field in the record</td></tr>
+        </table>
 
       </div>
 

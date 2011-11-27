@@ -6,17 +6,18 @@
             Subfield]
            [java.util.regex Pattern]))
 
+
 (defn matching-fields [^Record record fieldspec]
   (filter (fn [^VariableField field]
             (and
              (.startsWith (.getTag field) (:tag fieldspec))
              (or (instance? ControlField field)
-                 (or (not (:ind1 fieldspec))
-                     (.equals ^Character (.getIndicator1 ^DataField field)
-                              ^Character (:ind1 fieldspec)))
-                 (or (not (:ind2 fieldspec))
-                     (.equals ^Character (.getIndicator2 ^DataField field)
-                              ^Character (:ind2 fieldspec))))))
+                 (and (or (not (:ind1 fieldspec))
+                          (re-matches (:ind1 fieldspec)
+                                      (str (.getIndicator1 ^DataField field))))
+                      (or (not (:ind2 fieldspec))
+                          (re-matches (:ind2 fieldspec)
+                                      (str (.getIndicator2 ^DataField field))))))))
           (.getVariableFields record)))
 
 

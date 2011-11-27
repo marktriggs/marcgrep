@@ -19,7 +19,15 @@
                  {:tag "100" :subfields [[\a "Hello, Mark"]]}])
    (marc-record {"001" "56789"}
                 [{:tag "245" :subfields [[\a "this is Mark's test record"]
-                                         [\a "with a repeated subfield a"]]}])])
+                                         [\a "with a repeated subfield a"]]}])
+   (marc-record {"001" "67890"}
+                [{:tag "245" :ind2 \2 :subfields [[\a "hello world"]]}])
+   (marc-record {"001" "78901"}
+                [{:tag "245" :ind2 \7 :subfields [[\a "hello world"]]}])
+
+   (marc-record {"001" "89012"}
+                [{:tag "245" :ind1 \0 :ind2 \3
+                  :subfields [[\a "hello world"]]}])])
 
 
 (defn suite-setup [f]
@@ -39,7 +47,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tests...
-
 
 (deftest substring-search
   (the-query {:operator "contains"
@@ -188,3 +195,20 @@
              :on test-dataset
              :does-not-match ["56789"]
              :matches ["12345"]))
+
+(deftest extended-indicator-check
+  (the-query {:operator "contains"
+              :field "245!#[5-9]$a"
+              :value "hello"}
+             :on test-dataset
+             :does-not-match ["67890"]
+             :matches ["78901"]))
+
+(deftest extended-indicator-check-2
+  (the-query {:operator "contains"
+              :field "245![012][2-9]$a"
+              :value "hello"}
+             :on test-dataset
+             :does-not-match ["78901"]
+             :matches ["89012"]))
+

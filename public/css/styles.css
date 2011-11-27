@@ -163,6 +163,13 @@ body > .container {
   display: inline-block;
 }
 
+#target_field_help table th {
+    font-weight: bold;
+    text-align: left;
+}
+
+
+
 
 .group_button {display: none; float: right;}
 .ungroup_button {display: none; float: right;}
@@ -347,8 +354,9 @@ ul {
 .tagexample {
     font-family: monospace;
     font-size: 120%;
+    padding-right: 2em;
+    white-space: nowrap;
     display: inline-block;
-    width: 5em;
 }
 
 .predicate_choice {
