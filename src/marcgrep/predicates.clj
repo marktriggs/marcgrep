@@ -8,17 +8,20 @@
 
 
 (defn matching-fields [^Record record fieldspec]
-  (filter (fn [^VariableField field]
-            (and
-             (.startsWith (.getTag field) (:tag fieldspec))
-             (or (instance? ControlField field)
-                 (and (or (not (:ind1 fieldspec))
-                          (re-matches (:ind1 fieldspec)
-                                      (str (.getIndicator1 ^DataField field))))
-                      (or (not (:ind2 fieldspec))
-                          (re-matches (:ind2 fieldspec)
-                                      (str (.getIndicator2 ^DataField field))))))))
-          (.getVariableFields record)))
+  (filter
+   (fn [^VariableField field]
+     (and
+      (.startsWith (.getTag field) (:tag fieldspec))
+      (or (if (instance? ControlField field)
+            (and (not (:ind1 fieldspec))
+                 (not (:ind2 fieldspec)))
+            (and (or (not (:ind1 fieldspec))
+                     (re-matches (:ind1 fieldspec)
+                                 (str (.getIndicator1 ^DataField field))))
+                 (or (not (:ind2 fieldspec))
+                     (re-matches (:ind2 fieldspec)
+                                 (str (.getIndicator2 ^DataField field)))))))))
+   (.getVariableFields record)))
 
 
 (defn field-values [^Record record fieldspec]

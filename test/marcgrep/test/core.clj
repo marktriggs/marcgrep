@@ -27,6 +27,10 @@
 
    (marc-record {"001" "89012"}
                 [{:tag "245" :ind1 \0 :ind2 \3
+                  :subfields [[\a "hello world"]]}])
+
+   (marc-record {"001" "90123"}
+                [{:tag "035" :ind1 \space :ind2 \3
                   :subfields [[\a "hello world"]]}])])
 
 
@@ -212,3 +216,10 @@
              :does-not-match ["78901"]
              :matches ["89012"]))
 
+(deftest extended-indicator-check-3
+  (the-query {:operator "exists"
+              :field "*! [0-5]"
+              :value "hello"}
+             :on test-dataset
+             :matches ["90123"]
+             :does-not-match ["89012" "78901"]))
