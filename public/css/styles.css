@@ -457,3 +457,22 @@ table.cookbook {
     font-weight: bold;
     color: #666;
 }
+
+.bottom_bar {
+    padding: 10px;
+    text-align: center;
+    background-color: black;
+    color: #DDD;
+    font-size: 110%;
+    border-top: solid #c5c5c5 4px;
+    border-bottom: solid black 2px;
+}
+
+.bottom_bar  a {
+    text-decoration: underline;
+    color: white;
+}
+
+.github_link {
+    padding-left: 3em;
+}
