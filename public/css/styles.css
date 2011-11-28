@@ -1,6 +1,7 @@
 body {
     background-color: white;
     background-color: #f5f5f5;
+    color: #333;
 }
 
 .header {
@@ -15,7 +16,8 @@ body {
     border-left: solid #efefef 5px;
     border-right: solid #efefef 5px;
     width: 960px;
-    font-face: sans-serif;
+    font-size: 16px;
+    font-family: verdana, helvetica;
     line-height: 1.2em;
     margin-left: auto;
     margin-right: auto;
@@ -53,6 +55,7 @@ body {
 }
 
 h1 {
+  color: black;
   font-size: 200%;
   font-weight: bold;
   margin-top: 10px;
@@ -73,12 +76,14 @@ h1 {
 }
 
 h2 {
+  color: black;
   font-size: 150%;
   font-weight: bold;
 }
 
 
 h3 {
+    color: black;
     font-weight: bold;
     font-size: 125%;
     margin-bottom: 20px;
@@ -93,6 +98,7 @@ h3:before {
 }
 
 h4 {
+    color: black; 
     font-weight: bold;
     display: block;
     margin-bottom: 10px;
