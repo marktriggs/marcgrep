@@ -223,3 +223,10 @@
              :on test-dataset
              :matches ["90123"]
              :does-not-match ["89012" "78901"]))
+
+(deftest extended-wildcard-indicator
+  (the-query {:operator "contains"
+              :field "*!##"
+              :value "12345"}
+             :on test-dataset
+             :does-not-match ["12345"]))

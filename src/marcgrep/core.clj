@@ -96,7 +96,8 @@
         parsed (update-in parsed [:tag] #(.replace ^String % "*" ""))]
     (reduce (fn [result k]
               (assoc result k
-                     (cond (or (nil? (result k)) (= (result k) "#")) nil
+                     (cond (nil? (result k)) nil
+                           (= (result k) "#") #".*"
                            (= (first (result k)) \[) (re-pattern (result k))
                            :else (re-pattern (str "\\Q" (result k) "\\E")))))
             parsed
