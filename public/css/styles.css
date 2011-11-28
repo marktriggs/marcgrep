@@ -15,7 +15,7 @@ body {
     background-color: white;
     border-left: solid #efefef 5px;
     border-right: solid #efefef 5px;
-    width: 960px;
+    width: 950px;
     font-size: 16px;
     font-family: verdana, helvetica;
     line-height: 1.2em;
@@ -290,6 +290,15 @@ table#job_list .query_column {
     padding-right: 1em;
 }
 
+table#job_list .job_status_column {
+    width: 15em;
+}
+
+table#job_list .get_output {
+    margin-top: 12px;
+}
+
+
 table#job_list .query_summary th {
     padding-left: 1em;
     font-weight: bold;
@@ -438,3 +447,13 @@ table.cookbook {
     margin-left: 2em;
 }
 
+
+.status {
+    display: block;
+    margin-bottom: 12px;
+}
+
+.counts {
+    font-weight: bold;
+    color: #666;
+}

@@ -392,21 +392,20 @@ function get_job_list(callback)
                            (job['completion-time'] ? ('<h5>Finished:</h5>' + job['completion-time']) : '') +
                            '</td>');
 
-                var status = job['status'];
+                var status = '<div class="status">' + job['status'] + '</div>';
 
                 if (job['records-checked'] != '0') {
-                    status += ' (' + job['hits'] + ' hits; ' + job['records-checked'] + ' records checked)';
+                    status += ('<p><span class="counts">Hits: </span>' + job['hits'] + '</p>');
+                    status += ('<p><span class="counts">Checked: </span>' + job['records-checked'] + '</p>');
                 }
-
-                row.append('<td>' + status + '</td>');
 
                 if (job['file-available']) {
-                    row.append('<td><a href="job_output/' + job['id'] + '">Download output</a></td>');
+                    status += '<p class="get_output"><a href="job_output/' + job['id'] + '">Download output</a></p>';
                 } else if (job['records-checked'] != '0') {
-                    row.append('<td><a href="job_output/' + job['id'] + '">Preview</a></td>');
-                } else {
-                    row.append('<td>&nbsp;</td>');
+                    status += '<p class="get_output"><a href="job_output/' + job['id'] + '">Preview</a></p>';
                 }
+
+                row.append('<td class="job_status_column">' + status + '</td>');
 
                 var delete_button = delete_button_for(job['id']);
                 row.append(delete_button);
