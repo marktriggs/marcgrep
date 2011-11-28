@@ -17,7 +17,7 @@
     (when-not (k @config)
       (.println System/err (format "Warning: using default value (%s) for %s"
                                    v k))
-      (swap! config assoc k v))))
+      (swap! config assoc k v)))
 
-(defn load-config-from-file [file]
-  (load-config (reader file)))
+  true)
+

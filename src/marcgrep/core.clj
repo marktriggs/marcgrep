@@ -1,7 +1,7 @@
 (ns marcgrep.core
   (:refer-clojure :exclude [next flush])
   (:use marcgrep.config
-        marcgrep.protocols
+        [marcgrep.protocols :only [MarcSource MarcDestination]]
         compojure.core
         [clojure.contrib.seq :only [positions]]
         [clojure.string :only [join]]
@@ -492,15 +492,48 @@ running as many jobs as we're allowed, wait for an existing run to finish."
   (GET "/destination_options" [id] (render-destination-options))
   (GET "/job_output/:id" [id] (serve-file id))
   (GET "/job_list" [] (render-job-list))
-  (route/files "/" [:root "public"])
+
+  (route/resources "/" [:root "public"])
   (route/not-found "Page not found"))
 
 
-(def ^:dynamic *app* (-> #'main-routes params/wrap-params))
+(defn wrap-index-page [handler & [opts]]
+  (fn [request]
+    (let [request (if (and (:path-info request)
+                           (= (:path-info request) "/"))
+                    (assoc request :path-info "/index.html")
+                    request)
+          request (if (and (:uri request)
+                           (= (:uri request) "/"))
+                    (assoc request :uri "/index.html")
+                    request)]
+      (handler request))))
 
 
-(defn -main []
-  (load-config-from-file "config.clj")
+(def ^:dynamic *app* (-> #'main-routes
+                         params/wrap-params
+                         wrap-index-page))
+
+(def handler (handler/api #'*app*))
+
+
+(def config-file "config.clj")
+
+(defn init []
+  (or (when (.exists (file config-file))
+        (println "Loading config.clj from filesystem")
+           (load-config (reader config-file)))
+
+      (let [stream (-> (Thread/currentThread)
+                       (.getContextClassLoader)
+                       (.getResourceAsStream config-file))]
+        (when stream
+          (println "Loading config.clj from classpath")
+          (load-config (reader stream))))
+
+      (throw (Exception. (str "Couldn't find MARCgrep's config.clj file"
+                              " in the current directory or on the"
+                              " classpath!"))))
 
   (doseq [source (:marc-source-list @config)]
     (require (:driver source)))
@@ -517,16 +550,19 @@ running as many jobs as we're allowed, wait for an existing run to finish."
   (future
     (while true
       (swap! job-queue purge-deleted-jobs)
-      (Thread/sleep 300000)))
+      (Thread/sleep 300000))))
+
+
+(defn -main []
+
+  (init)
 
   ;; Fire up Jetty
-  (let [handler (handler/api #'*app*)
-        connector (org.mortbay.jetty.nio.SelectChannelConnector.)
+  (let [connector (org.mortbay.jetty.nio.SelectChannelConnector.)
         server (org.mortbay.jetty.Server.)
         conf (eval (:configure-jetty @config))]
 
-    (doto connector
-      (.setPort (:listen-port @config)))
+    (.setPort connector (:listen-port @config))
 
     (doto server
       (.addConnector connector)
