@@ -60,6 +60,14 @@
              :matches ["12345"]
              :does-not-match ["23456"]))
 
+(deftest controlfield-search
+  (the-query {:operator "contains"
+              :field "001"
+              :value "12345"}
+             :on test-dataset
+             :matches ["12345"]
+             :does-not-match ["23456"]))
+
 
 (deftest substring-search-ignores-case
   (the-query {:operator "contains"
