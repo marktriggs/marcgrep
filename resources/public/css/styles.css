@@ -459,13 +459,12 @@ table.cookbook {
 }
 
 .bottom_bar {
-    padding: 5px;
+    padding: 2px;
     text-align: center;
     background-color: black;
     color: #DDD;
-    font-size: 110%;
-    border-top: solid #c5c5c5 4px;
-    border-bottom: solid black 2px;
+    font-size: 80%;
+    border-top: solid #c5c5c5 2px;
     position: fixed;
     bottom: 0px;
     width: 100%;
