@@ -10,7 +10,7 @@
     (doseq [source marc-sources] (.init source)))
   (next [this]
     (let [active (nth marc-sources active-source)]
-      (or (.next active)
+      (or (.next ^marcgrep.protocols.MarcSource active)
           (do (set! active-source (inc active-source))
               (when (< active-source (count marc-sources))
                 (.next this))))))
