@@ -300,7 +300,8 @@ running as many jobs as we're allowed, wait for an existing run to finish."
 
        ;; schedule another run to catch any remaining jobs that we haven't run
        ;; in this round (if any).
-       (send-off *agent* schedule-job-run)
+       (when (not= jobs-ready-to-run jobs-to-run)
+         (send-off *agent* schedule-job-run))
 
        ;; and add the new thread to the run queue
        (cons (future (print-errors (run-jobs jobs-to-run marc-source)))
