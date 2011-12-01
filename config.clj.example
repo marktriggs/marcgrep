@@ -10,6 +10,6 @@
 
  :marc-destination-list [marcgrep.destinations.marcfile marcgrep.destinations.plaintext]
 
- :marc-backend marcgrep.backends.nla
- :solr-index "/var/local/solr/data/index"
+ :marc-backend marcgrep.backends.file
+ :marc-file "/path/to/some/marc.xml"
  }
