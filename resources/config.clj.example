@@ -12,7 +12,9 @@
 
  :marc-source-list [{:description "my test bibliographic data"
                      :driver marcgrep.sources.marcxml-file
-                     :marc-files ["/home/mst/test-records.xml"]}
+                     :marc-files ["/home/mst/test-records.xml"
+                                  {:dir "/path/to/somewhere"
+                                   :pattern #"my\.file\.[0-9]+$"}]}
 
                     {:description "some other file I found"
                      :driver marcgrep.sources.marcxml-file

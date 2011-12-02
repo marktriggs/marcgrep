@@ -1,6 +1,7 @@
 (ns marcgrep.sources.marcxml-file
   (:refer-clojure :exclude [next])
-  (:require marcgrep.sources.concat)
+  (:require marcgrep.sources.concat
+            [marcgrep.sources.util :as util])
   (:use marcgrep.protocols
         clojure.java.io)
   (:import [org.marc4j MarcXmlReader]
@@ -9,7 +10,7 @@
            [java.io BufferedReader ByteArrayInputStream]))
 
 (deftype MARCXMLFile [^String filename
-                   ^{:unsynchronized-mutable true :tag MarcXmlReader} rdr]
+                      ^{:unsynchronized-mutable true :tag MarcXmlReader} rdr]
   MarcSource
   (init [this]
     (set! rdr (MarcXmlReader. (FileInputStream. filename))))
@@ -22,6 +23,7 @@
 (defn all-marc-records [config]
   (let [marc-source (apply marcgrep.sources.concat/concat-sources
                            (map #(MARCXMLFile. % nil)
-                                (:marc-files config)))]
+                                (mapcat util/expand-file-name
+                                        (:marc-files config))))]
     (.init marc-source)
     marc-source))
