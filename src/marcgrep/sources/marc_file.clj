@@ -1,6 +1,7 @@
 (ns marcgrep.sources.marc-file
   (:refer-clojure :exclude [next])
   (:require marcgrep.sources.concat
+            marcgrep.sources.dedupe
             [marcgrep.sources.util :as util])
   (:use marcgrep.protocols
         clojure.java.io)
@@ -22,9 +23,12 @@
 
 
 (defn all-marc-records [config]
-  (let [marc-source (apply marcgrep.sources.concat/concat-sources
-                           (map #(MARCFile. % nil)
-                                (mapcat util/expand-file-name
-                                        (:marc-files config))))]
+  (let [marc-source
+        (marcgrep.sources.dedupe/dedupe-source
+         (apply marcgrep.sources.concat/concat-sources
+                (map #(MARCFile. % nil)
+                     (util/sort-newest-to-oldest
+                      (mapcat util/expand-file-name
+                              (:marc-files config))))))]
     (.init marc-source)
     marc-source))
