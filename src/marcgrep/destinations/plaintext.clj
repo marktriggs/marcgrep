@@ -67,10 +67,17 @@
                            0)))
 
 
+(defn delete-job [config job]
+  (let [output (output-file config job)]
+    (when (.exists output)
+      (.delete output))))
+
+
 (marcgrep.core/register-destination
  {:description "Plain text file"
   :get-destination-for get-destination-for
   :get-output-for get-output-for
+  :delete-job delete-job
   :required-fields [{:name "field-list"
                      :label "Limit to fields"
                      :caption "Comma separated.  Leave blank for all fields"

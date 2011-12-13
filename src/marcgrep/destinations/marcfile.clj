@@ -32,8 +32,16 @@
         outfh (MarcStreamWriter. (FileOutputStream. outfile) "UTF-8")]
     (MarcFileDestination. outfh)))
 
+
+(defn delete-job [config job]
+  (let [output (output-file config job)]
+    (when (.exists output)
+      (.delete output))))
+
+
 (marcgrep.core/register-destination
  {:description "MARC file"
   :get-destination-for get-destination-for
   :get-output-for get-output-for
+  :delete-job delete-job
   :required-fields []})

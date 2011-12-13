@@ -352,8 +352,10 @@ running as many jobs as we're allowed, wait for an existing run to finish."
   "Delete the job whose ID is 'id'"
   [id]
   (let [job (get-job id)]
-    (when (:file @job)
-      (.delete (:file @job)))
+    (when (-> @job :destination :delete-job)
+      ((-> @job :destination :delete-job)
+       config
+       job))
 
     (swap! job assoc :status :deleted)
     (swap! job-queue #(remove #{job} %)))
