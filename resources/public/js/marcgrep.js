@@ -116,13 +116,13 @@ function update_form() {
 
     $('.where_clause').each(function(idx, clause) {
         var selected = $(clause).find('.operator option:selected');
-        $(clause).find('.field_value').attr('disabled', !!selected.attr('no_value'));
+        $(clause).find('.field_value').attr('disabled', selected.attr('no_value') == "1");
 
         if (selected.attr('single_subfield')) {
             $(clause).find('.field_value').attr('maxlength', 1);
             $(clause).find('.field_value').val($(clause).find('.field_value').val().substring(0, 1));
         } else {
-            $(clause).find('.field_value').attr('maxlength', '');
+            $(clause).find('.field_value').attr('maxlength', '10000');
         }
 
         if (selected.attr('no_wildcard_field')) {
@@ -285,7 +285,7 @@ function render_job(job)
 
     var row = $('<tr />');
     row.append('<th>Clauses:</th>')
-    row.append('<td class="job_query">' +  JSON.stringify(job['query'], undefined, 4) + '</td>');
+    row.append('<td class="job_query">' +  JSON.stringify(job['query'], undefined, 4).replace(new RegExp("\n", "g"), "<br>") + '</td>');
     table.append(row)
 
     return table;

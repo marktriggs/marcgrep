@@ -2,9 +2,9 @@
 <html>
 
   <head>
-    <link type="text/css" href="css/flick/jquery-ui-1.8.16.custom.css" rel="Stylesheet" />	
-    <link rel="stylesheet" type="text/css" href="css/reset.css" />
-    <link rel="stylesheet" type="text/css" href="css/styles.css?v=13224338701" />
+    <link type="text/css" href="css/flick/jquery-ui-1.8.16.custom.css" rel="Stylesheet"></link>
+    <link rel="stylesheet" type="text/css" href="css/reset.css"></link>
+    <link rel="stylesheet" type="text/css" href="css/styles.css?v=13224338701"></link>
 
     <script src="js/jquery-1.6.2.min.js"></script>
     <script src="js/jquery-ui-1.8.16.custom.min.js"></script>
@@ -61,20 +61,20 @@
                 <span>field</span>
                 <div class="predicate_choice">
                   <select class="operator">
-                    <option value="contains_keyword">exists and contains the keyword</option>
-                    <option value="does_not_contain_keyword">exists and doesn't contain the keyword</option>
-                    <option value="contains">exists and contains the string</option>
-                    <option value="does_not_contain">exists and doesn't contain the string</option>
-                    <option value="equals">exists and the entire field is</option>
-                    <option value="not_equals">exists and the entire field isn't</option>
+                    <option no_value=0 value="contains_keyword">exists and contains the keyword</option>
+                    <option no_value=0 value="does_not_contain_keyword">exists and doesn't contain the keyword</option>
+                    <option no_value=0 value="contains">exists and contains the string</option>
+                    <option no_value=0 value="does_not_contain">exists and doesn't contain the string</option>
+                    <option no_value=0 value="equals">exists and the entire field is</option>
+                    <option no_value=0 value="not_equals">exists and the entire field isn't</option>
                     <option no_value=1 value="exists">exists</option>
                     <option no_value=1 value="does_not_exist">doesn't exist</option>
-                    <option value="matches_regexp">matches regular expression</option>
-                    <option value="does_not_match_regexp">doesn't match regular expression</option>
+                    <option no_value=0 value="matches_regexp">matches regular expression</option>
+                    <option no_value=0 value="does_not_match_regexp">doesn't match regular expression</option>
                     <option no_wildcard_field=1 no_value=1 value="repeats_field">appears more than once</option>
                     <option no_wildcard_field=1 no_value=1 value="does_not_repeat_field">appears exactly once</option>
-                    <option no_wildcard_field=1 single_subfield=1 value="repeats_subfield">repeats the subfield</option>
-                    <option no_wildcard_field=1 single_subfield=1 value="does_not_repeat_subfield">does not repeat the subfield</option>
+                    <option no_value=0 no_wildcard_field=1 single_subfield=1 value="repeats_subfield">repeats the subfield</option>
+                    <option no_value=0 no_wildcard_field=1 single_subfield=1 value="does_not_repeat_subfield">does not repeat the subfield</option>
                   </select>
                   <span id="predicate_docs">
                   </span>
@@ -197,34 +197,35 @@
 
         <p>MARCgrep can find records based on a range of criteria:</p>
 
-        <ul>
-          <li><h4>exists and contains the keyword / exists and doesn't contain the keyword</h4>
+          <h4>"exists and contains the keyword / exists and doesn't contain the keyword"</h4>
 
             <p>These match (or exclude) records that contain particular
             keywords anywhere in the specified field.  For example,
             a record like:</p>
 
-            <div class="example_record">001 7961234
-              ...
-              245 10 $a Happy horse apple
+            <div class="example_record">
+              <div>001 7961234</div>
+              <div>...</div>
+              <div>245 10 $a Happy horse apple</div>
             </div>
 
             <p>Would be matched by a query against the 245 field for
             "apple" or "happy" or "Happy".  This criteria is case
             insensitive.</p>
 
-          </li>
+          
 
 
-          <li><h4>exists and contains the string / exists and doesn't contain the string</h4>
+          <h4>"exists and contains the string / exists and doesn't contain the string"</h4>
 
             <p>These match (or exclude) records that contain your query
             text anywhere in the specified field.  For example, a
             record like:</p>
 
-            <div class="example_record">001 7961234
-              ...
-              245 10 $a Happy horse apple
+            <div class="example_record">
+              <div>001 7961234</div>
+              <div>...</div>
+              <div>245 10 $a Happy horse apple</div>
             </div>
 
             <p>Would be matched by a query against the 245 field for
@@ -241,9 +242,9 @@
 
             <p>The string variant operates at the level of individual characters.  With the above example, you could find a match by searching for "test" or "te" or "Cgrep and hop".  Searching for any substring of the text will get you a match.  This is a lower-level search, but is useful for finding records containing things like strange diacritic characters, runs of space characters, and so on.</p>
 
-          </li>
+          
 
-          <li><h4>exists and the entire field is / exists and the entire field isn't</h4>
+          <h4>"exists and the entire field is / exists and the entire field isn't"</h4>
 
             <p>This criteria works in the same way as the previous one,
             but requires a complete match on the value of a field.  The
@@ -251,9 +252,9 @@
             query text was the complete <em>"happy horse apple"</em></p>
 
             <p>As with the previous query, this is case insensitive.</p>
-          </li>
+          
 
-          <li><h4>exists / doesn't exist</h4></li>
+          <h4>"exists / doesn't exist"</h4>
 
           <p>This criteria matches any record that contains (or doesn't
           contain) the tag you specify.  For example, using this
@@ -261,7 +262,7 @@
           tag of <em>245!#0$d</em> will only match records containing a 245 field
           whose second indicator is zero and with a value for subfield d.</p>
 
-          <li><h4>matches regular expression / doesn't match regular expression</h4></li>
+          <h4>"matches regular expression / doesn't match regular expression"</h4>
 
           <p>This criteria lets you provide
           a <a target="_blank" href="http://en.wikipedia.org/wiki/Regular_expression">regular
@@ -301,7 +302,7 @@
           <p>Note that regular expressions, unlike the other criteria
           shown so far, are case sensitive.</p>
 
-          <li><h4>appears more than once / appears exactly once</h4>
+          <h4>"appears more than once / appears exactly once"</h4>
 
             <p>This criteria matches any record that has more than one
             occurrence (or exactly one occurrence) of the specified
@@ -309,9 +310,9 @@
 
             <p>Note that you cannot use wildcards with this criteria.</p>
 
-          </li>
+          
 
-          <li><h4>repeats the subfield / does not repeat the subfield</h4>
+          <h4>"repeats the subfield / does not repeat the subfield"</h4>
 
             <p>This criteria matches any record where an occurrence of the specified field contains more than one (or exactly one) instance of the given subfield.  For example, a query for:</p>
 
@@ -321,15 +322,14 @@
 
             <p>would match the following record:</p>
 
-            <div class="example_record">001 9969375
-              ...
-              245 10 $a Happy horse apple  $h [microform]  $a probably a mistake
+            <div class="example_record">
+              <div>001 9969375</div>
+              <div>...</div>
+              <div>245 10 $a Happy horse apple  $h [microform]  $a probably a mistake</div>
             </div>
 
             <p>Note that this criteria can only check for a single repeated subfield, and that wildcards are not supported.</p>
 
-          </li>
-        </ul>
       </div>
 
       <div id="boolean_help" class="help_text" style="display: none">
@@ -482,7 +482,7 @@
                         }
 
                         return false;
-                    },
+                    }
                 });
             });
 

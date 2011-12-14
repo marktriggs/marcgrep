@@ -36,14 +36,24 @@ body {
 }
 
 .blurb_text {
-    display: inline-block;
+    /* inline block hack for IE */
+    display:-moz-inline-stack;
+    display:inline-block;
+    zoom:1;
+    *display:inline;
 }
 
 .bulb {
     position: relative;
     margin-left: 1em;
     float: left;
-    display: inline-block;
+
+    /* inline block hack for IE */
+    display:-moz-inline-stack;
+    display:inline-block;
+    zoom:1;
+    *display:inline;
+
     top: 4px;
     padding-right: 10px;
 }
@@ -110,7 +120,13 @@ h5 {
 }
 
 .label {
-    display: inline-block;
+
+    /* inline block hack for IE */
+    display:-moz-inline-stack;
+    display:inline-block;
+    zoom:1;
+    *display:inline;
+
     width: 4em;
     padding-right: 5px;
     text-align: right;
@@ -166,7 +182,11 @@ body > .container {
 }
 
 .target_field_container {
-  display: inline-block;
+    /* inline block hack for IE */
+    display:-moz-inline-stack;
+    display:inline-block;
+    zoom:1;
+    *display:inline;
 }
 
 #target_field_help table th {
@@ -244,7 +264,11 @@ label {
 }
 
 .captioned_input {
-    display: inline-block;
+    /* inline block hack for IE */
+    display:-moz-inline-stack;
+    display:inline-block;
+    zoom:1;
+    *display:inline;
 }
 
 input#submit {
@@ -312,7 +336,6 @@ table#job_list .job_query {
     scroll-x: auto;
     overflow-x: auto;
     overflow-y: hidden;
-
 }
 
 
@@ -343,7 +366,12 @@ ul {
 .help_button {
     color: #3939ff;
     font-weight: bold;
-    display: inline-block;
+    /* inline block hack for IE */
+    display:-moz-inline-stack;
+    display:inline-block;
+    zoom:1;
+    *display:inline;
+
     text-align: center;
     text-decoration: none;
 }
@@ -371,11 +399,21 @@ ul {
     font-size: 120%;
     padding-right: 2em;
     white-space: nowrap;
-    display: inline-block;
+
+    /* inline block hack for IE */
+    display:-moz-inline-stack;
+    display:inline-block;
+    zoom:1;
+    *display:inline;
 }
 
 .predicate_choice {
-    display: inline-block;
+    /* inline block hack for IE */
+    display:-moz-inline-stack;
+    display:inline-block;
+    zoom:1;
+    *display:inline;
+
     vertical-align: top;
     text-align: right;
 }
