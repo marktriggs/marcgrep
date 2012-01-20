@@ -27,25 +27,63 @@ records per second.
 Screenshots
 -----------
 
-This is all a work in progress, but here's what the user interface
-currently looks like:
-
 ![screenshot](https://github.com/marktriggs/marcgrep/raw/master/screenshot.png)
 
+Everything in MARCgrep happens on a single screen: you add one or more
+jobs by completing the form at the top, then you run your jobs by
+clicking the "Run all jobs" button.  MARCgrep batches jobs together so
+running multiple jobs is just as fast (or slow, if you like) as
+running one, so there's no harm in running lots of jobs at once.
 
-Building it
------------
+
+Running MARCgrep in standalone mode
+-----------------------------------
+
+The quickest way to get running with MARCgrep is to run it straight
+from the command-line, using its built in web server.  To do this:
 
   1.  Get Leiningen from http://github.com/technomancy/leiningen and put
       the 'lein' script somewhere in your $PATH.
 
   2.  From marcgrep's root directory, run 'lein uberjar'.  Lein will grab
-      all required dependencies and produce a 'marcgrep-0.1-standalone.jar'.
+      all required dependencies and produce a 'marcgrep-1.0.0-standalone.jar'.
 
-  3. Copy config.clj.example to config.clj and edit as appropriate
+  3. Copy resources/config.clj.example to resources/config.clj and
+     edit as appropriate.
 
-  4.  Run the jar with, for example:
+  4.  Run the jar from your MARCgrep directory, for example:
 
-        java -cp marcgrep-0.1-standalone.jar marcgrep.core
+        java -cp marcgrep-1.0.0-standalone.jar:resources marcgrep.core
 
   5.  Point your browser at http://localhost:9095/
+
+
+Running MARCgrep from a servlet container
+-----------------------------------------
+
+  1.  Get Leiningen from http://github.com/technomancy/leiningen and put
+      the 'lein' script somewhere in your $PATH.
+
+  2. Copy resources/config.clj.example to resources/config.clj and
+     edit as appropriate.
+
+  3.  From marcgrep's root directory, run 'lein deps' and then 'lein
+      ring uberwar'.  Lein will grab all required dependencies and
+      produce a 'marcgrep-1.0.0-standalone.war'.
+
+  4.  Deploy this WAR file in your servlet container of choice (Jetty,
+      Tomcat, ...)
+
+
+Acknowledgements
+----------------
+
+Parts of the MARCgrep development were funded by the [National Library
+of Australia](http://www.nla.gov.au/), who have generously contributed
+their modifications back to the open source community.  Hurrah!
+
+Stefano Bargioni independently spun up a project called
+[MARCgrep.pl](http://en.pusc.it/bib/MARCgrep) at around the same time
+I was doing this.  If you're looking for a handy way of filtering a
+file of MARC records from the command line, this may be the tool for
+you.

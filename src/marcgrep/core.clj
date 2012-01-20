@@ -525,7 +525,7 @@ running as many jobs as we're allowed, wait for an existing run to finish."
 (defn init []
   (or (when (.exists (file config-file))
         (println "Loading config.clj from filesystem")
-           (load-config (reader config-file)))
+        (load-config (reader config-file)))
 
       (let [stream (-> (Thread/currentThread)
                        (.getContextClassLoader)
