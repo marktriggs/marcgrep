@@ -6,7 +6,6 @@
            [java.io BufferedReader ByteArrayInputStream]
            [org.apache.lucene.document FieldSelector FieldSelectorResult]
            [org.apache.lucene.index IndexReader]
-           [org.apache.lucene.store FSDirectory]
            [java.util.concurrent LinkedBlockingQueue]))
 
 
@@ -75,7 +74,7 @@
                         ^{:unsynchronized-mutable true} finished-readers]
   MarcSource
   (init [this]
-    (set! ir (IndexReader/open (FSDirectory/open (file index-path))))
+    (set! ir (IndexReader/open index-path))
     (set! queue (LinkedBlockingQueue. 16))
     (set! running? (atom true))
     (set! finished-readers (atom 0))
