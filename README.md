@@ -13,6 +13,47 @@ MARC21 or plain text, but I'd be happy to lend a hand if you have
 grand ideas (like reading records from your ILMS system).
 
 
+What sort of searches can I do?
+-------------------------------
+
+Some examples:
+
+  * Find records with the keyword "laugh" in the 245$a and "microform" in
+    the 245$h
+
+  * Find records with the string "laugh" in the 245$a (matches
+    "laugh", "laughed", "laughing")
+
+  * Find records where a 1XX field whose first indicator is '1'
+    contains the keyword "Smith"
+
+  * Find records containing more than one 600 field whose 008 field
+    matches the regular expression "^.{35}eng"
+
+  * Find records where the keyword "spatula" appears in any field
+
+These sort of search criteria can be combined with the standard
+AND/OR/NOT boolean operators to produce more complex queries.
+
+Fields to match against can be specified with as much detail as is
+useful.  For example, a field specification might match:
+
+  * Any field (*)
+
+  * Any subfield in a 2XX field (2*)
+
+  * Any subfield in a 245 field (245)
+
+  * Any subfield in a 245 field with a particular indicator value (245!1#)
+
+  * Subfields a, b, c in a 245 field with a particular indicator value
+    (245!1#$abc)
+
+Don't let the syntax scare you off: the simple cases are simple (just
+type the tag of the field you want to search), and there's inline
+documentation for when you need something more complicated.
+
+
 How slow is "slow-moving"?
 --------------------------
 
