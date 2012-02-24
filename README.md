@@ -94,7 +94,7 @@ from the command-line, using its built in web server.  To do this:
 
   4.  Run the jar from your MARCgrep directory, for example:
 
-        java -cp marcgrep-1.0.0-standalone.jar:resources marcgrep.core
+        java -cp resources:marcgrep-1.0.0-standalone.jar marcgrep.core
 
   5.  Point your browser at http://localhost:9095/
 
