@@ -87,14 +87,14 @@ from the command-line, using its built in web server.  To do this:
       the 'lein' script somewhere in your $PATH.
 
   2.  From marcgrep's root directory, run 'lein uberjar'.  Lein will grab
-      all required dependencies and produce a 'marcgrep-1.0.0-standalone.jar'.
+      all required dependencies and produce a 'marcgrep-1.0.1-standalone.jar'.
 
   3. Copy resources/config.clj.example to resources/config.clj and
      edit as appropriate.
 
   4.  Run the jar from your MARCgrep directory, for example:
 
-        java -cp resources:marcgrep-1.0.0-standalone.jar marcgrep.core
+        java -cp resources:marcgrep-1.0.1-standalone.jar marcgrep.core
 
   5.  Point your browser at http://localhost:9095/
 
@@ -110,7 +110,7 @@ Running MARCgrep from a servlet container
 
   3.  From marcgrep's root directory, run 'lein deps' and then 'lein
       ring uberwar'.  Lein will grab all required dependencies and
-      produce a 'marcgrep-1.0.0-standalone.war'.
+      produce a 'marcgrep-1.0.1-standalone.war'.
 
   4.  Deploy this WAR file in your servlet container of choice (Jetty,
       Tomcat, ...)
