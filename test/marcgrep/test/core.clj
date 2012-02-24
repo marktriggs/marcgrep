@@ -238,3 +238,10 @@
               :value "12345"}
              :on test-dataset
              :does-not-match ["12345"]))
+
+(deftest exists-subfields
+  (the-query {:operator "exists"
+              :field "245$m"
+              :value true}
+             :on test-dataset
+             :does-not-match ["12345"]))

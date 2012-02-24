@@ -26,14 +26,15 @@
 
 (defn field-values [^Record record fieldspec]
   (when-let [fields (seq (matching-fields record fieldspec))]
-    (map (fn [^VariableField field]
-           (if (instance? DataField field)
-             (let [field ^DataField field
-                   subfield-list (if (:subfields fieldspec)
-                                   (mapcat #(.getSubfields field %) (:subfields fieldspec))
-                                   (.getSubfields field))]
-               (join " " (map #(.getData ^Subfield %) subfield-list)))
-             (.getData ^ControlField field)))
+    (keep (fn [^VariableField field]
+            (if (instance? DataField field)
+              (let [field ^DataField field
+                    subfield-list (if (:subfields fieldspec)
+                                    (seq (mapcat #(.getSubfields field %) (:subfields fieldspec)))
+                                    (.getSubfields field))]
+                (when subfield-list
+                  (join " " (map #(.getData ^Subfield %) subfield-list))))
+              (.getData ^ControlField field)))
          fields)))
 
 
@@ -84,8 +85,7 @@
 
 
 (defn exists? [record fieldspec _]
-  (field-values record fieldspec))
-
+  (seq (field-values record fieldspec)))
 
 (def not-exists? (complement exists?))
 
