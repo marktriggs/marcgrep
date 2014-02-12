@@ -3,10 +3,9 @@
   (:use marcgrep.config
         [marcgrep.protocols :only [MarcSource MarcDestination]]
         compojure.core
-        [clojure.contrib.seq :only [positions]]
         [clojure.string :only [join]]
         clojure.java.io
-        clojure.contrib.json)
+        clojure.data.json)
   (:import [org.marc4j MarcXmlReader]
            [org.marc4j.marc Record VariableField DataField ControlField
             Subfield]
@@ -19,8 +18,7 @@
             [compojure.route :as route]
             [ring.util.servlet :as servlet]
             [compojure.handler :as handler]
-            [ring.middleware.params :as params]
-            [clojure.contrib.repl-utils :as ru])
+            [ring.middleware.params :as params])
   (:gen-class))
 
 
@@ -142,13 +140,20 @@
               w))
 
 
+(defn index-of [needle haystack]
+  (first (keep-indexed (fn [index item]
+                         (when (= item needle)
+                           index))
+                       haystack)))
+
+
 (defn serialise-job-queue [job-queue]
   (binding [*print-dup* true]
     (prn-str
      (vec (map (fn [job]
                  (dissoc (assoc @job
-                           :destination (or (first (positions #{(:destination @job)}
-                                                              @marcgrep.core/destinations))
+                           :destination (or (index-of (:destination @job)
+                                                      @marcgrep.core/destinations)
                                             (throw (Exception. (str "Couldn't find destination for "
                                                                     @job)))))
                          :query))

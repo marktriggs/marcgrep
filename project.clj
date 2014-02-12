@@ -1,7 +1,7 @@
 (defproject marcgrep "1.0.2"
   :description "A slow-moving search for MARC data"
-  :dependencies [[org.clojure/clojure "1.3.0"]
-                 [org.clojure.contrib/complete "1.3.0-alpha4"]
+  :dependencies [[org.clojure/clojure "1.5.1"]
+                 [org.clojure/data.json "0.2.4"]
                  [org.mortbay.jetty/jetty "6.1.25"]
                  [compojure "0.6.4"]
                  [ring/ring-servlet "0.3.10"]
