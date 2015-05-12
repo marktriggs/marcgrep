@@ -1,4 +1,4 @@
-(defproject marcgrep "1.0.2"
+(defproject marcgrep "1.0.3"
   :description "A slow-moving search for MARC data"
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/data.json "0.2.4"]

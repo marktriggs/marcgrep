@@ -18,11 +18,18 @@
                                               (str "WARNING: couldn't parse control number: "
                                                    (.getControlNumber next-record)))
                                     nil))]
-          (if (and control-number
-                   (.get seen-ids control-number))
-            (recur)                     ; skip this record
-            (do (.set seen-ids control-number)
-                next-record))))))
+          (cond
+
+           ;; Skip this record if we couldn't read its control number or we've
+           ;; seen it before
+           (or (nil? control-number)
+               (.get seen-ids control-number))
+           (recur)
+
+           ;; Otherwise, mark as seen and return the record we found
+           :else
+           (do (.set seen-ids control-number)
+               next-record))))))
   (close [this]
     (.close marc-source)))
 
