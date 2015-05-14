@@ -1,8 +1,9 @@
 (ns marcgrep.test.test-utils
   (:refer-clojure :exclude [next flush])
-  (:use marcgrep.protocols
-        clojure.test)
-  (:require marcgrep.core)
+  (:use clojure.test)
+  (:require marcgrep.core
+            [marcgrep.protocols.marc-source :as marc-source]
+            [marcgrep.protocols.marc-destination :as marc-destination])
   (:import [org.marc4j.marc MarcFactory]))
 
 (defn marc-record [controlfields datafields]
@@ -25,7 +26,7 @@
 
 (defn canned-marcsource [& records]
   (let [ptr (atom 0)]
-    (reify marcgrep.protocols/MarcSource
+    (reify marc-source/MarcSource
       (init [this])
       (next [this]
         (when (< @ptr (count records))
@@ -39,7 +40,7 @@
         matches (atom #{})]
   {:get-destination-for
    (constantly
-    (reify marcgrep.protocols/MarcDestination
+    (reify marc-destination/MarcDestination
       (init [this])
       (write [this record]
         (swap! matches conj (-> record

@@ -1,9 +1,9 @@
 (ns marcgrep.sources.nla
   (:refer-clojure :exclude [next])
-  (:use marcgrep.protocols
-        clojure.java.io)
+  (:use clojure.java.io)
   (:import [org.marc4j.marc Record VariableField])
-  (:require marcgrep.sources.lucene))
+  (:require marcgrep.sources.lucene
+            [marcgrep.protocols.marc-source :as marc-source]))
 
 
 (defn chop-xml-header
@@ -20,20 +20,19 @@
 
 
 (defn all-marc-records [config]
-  (let [^marcgrep.protocols.MarcSource
-        marc-records
+  (let [marc-records
         (apply marcgrep.sources.lucene/create-lucene-source
                (:index-path config)
                (:stored-field config)
                :xml
                :preprocess-stored-value-fn chop-xml-header
                (flatten (vec config)))]
-    (.init marc-records)
+    (marc-source/init marc-records)
 
-    (reify MarcSource
+    (reify marc-source/MarcSource
       (init [this])
       (next [this]
-        (when-let [rec (.next marc-records)]
+        (when-let [rec (marc-source/next marc-records)]
           (filter-nla-record rec)))
       (close [this]
-        (.close marc-records)))))
+        (marc-source/close marc-records)))))

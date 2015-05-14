@@ -1,7 +1,6 @@
 (ns marcgrep.core
-  (:refer-clojure :exclude [next flush])
+  (:refer-clojure :exclude [next flush read])
   (:use marcgrep.config
-        [marcgrep.protocols :only [MarcSource MarcDestination]]
         compojure.core
         [clojure.string :only [join]]
         clojure.java.io
@@ -18,7 +17,9 @@
             [compojure.route :as route]
             [ring.util.servlet :as servlet]
             [compojure.handler :as handler]
-            [ring.middleware.params :as params])
+            [ring.middleware.params :as params]
+            [marcgrep.protocols.marc-source :as marc-source]
+            [marcgrep.protocols.marc-destination :as marc-destination])
   (:gen-class))
 
 
@@ -218,8 +219,7 @@ predicate to each record and sends matches to the appropriate destination."
                (when ((:query @job) record)
                  (swap! job update-in [:hits] inc)
                  (locking (outputs job)
-                   (.write ^marcgrep.protocols.MarcDestination (outputs job)
-                           record))))
+                   (marc-destination/write (outputs job) record))))
              (recur))))))))
 
 
@@ -250,14 +250,14 @@ of gathering up and collating their results."
         queue (LinkedBlockingQueue. 512)
         workers (doall (map #(run-worker % jobs outputs queue)
                             (range (:worker-threads @config))))]
-    (with-open [^marcgrep.protocols.MarcSource marc-records source]
+    (with-open [marc-records source]
 
       ;; Push records onto our queue until we either run out of records or all
       ;; of our workers have called it quits.
       (loop []
         (if (every? future-done? workers)
           nil                           ; slackers!
-          (if-let [record (.next marc-records)]
+          (if-let [record (marc-source/next marc-records)]
             (when (offer-while queue record
                                #(not-every? future-done? workers))
               (recur))
@@ -287,7 +287,7 @@ of gathering up and collating their results."
   "Prepare a MARC source for access.  This can either be the config entry for
 the source, or a ready-to-go MarcSource implementation."
   [source]
-  (if (satisfies? MarcSource source)
+  (if (satisfies? marc-source/MarcSource source)
     (do (.init source)
         source)
     ((ns-resolve (:driver source) 'all-marc-records)

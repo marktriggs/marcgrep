@@ -1,6 +1,6 @@
 (ns marcgrep.destinations.plaintext
-  (:use marcgrep.protocols
-        clojure.java.io)
+  (:use clojure.java.io)
+  (:require [marcgrep.protocols.marc-destination :as marc-destination])
   (:refer-clojure :exclude [next flush])
   (:import [org.marc4j.marc Record VariableField DataField ControlField Subfield]
            [java.io BufferedWriter FileOutputStream]))
@@ -32,14 +32,14 @@
 
 (deftype PlaintextDestination [^BufferedWriter writer included-fields
                                ^{:unsynchronized-mutable true :tag long} last-flush-time]
-  MarcDestination
+  marc-destination/MarcDestination
   (init [this])
   (write [this record]
     (write-pretty-record record writer included-fields)
     (let [now (System/currentTimeMillis)]
       (when (> (- now last-flush-time)
                ms-between-flushes)
-        (.flush this)
+        (marc-destination/flush this)
         (set! last-flush-time now))))
   (flush [this] (try (.flush writer)
                      (catch java.io.IOException _)))

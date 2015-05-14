@@ -2,9 +2,9 @@
   (:refer-clojure :exclude [next])
   (:require marcgrep.sources.concat
             marcgrep.sources.dedupe
-            [marcgrep.sources.util :as util])
-  (:use marcgrep.protocols
-        clojure.java.io)
+            [marcgrep.sources.util :as util]
+            [marcgrep.protocols.marc-source :as marc-source])
+  (:use clojure.java.io)
   (:import [org.marc4j MarcStreamReader]
            [java.io FileInputStream]
            [org.marc4j.marc Record VariableField]
@@ -13,7 +13,7 @@
 
 (deftype MARCFile [^String filename
                    ^{:unsynchronized-mutable true :tag MarcStreamReader} rdr]
-  MarcSource
+  marc-source/MarcSource
   (init [this]
     (set! rdr (MarcStreamReader. (FileInputStream. filename))))
   (next [this]

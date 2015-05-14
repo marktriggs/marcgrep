@@ -1,7 +1,8 @@
 (ns marcgrep.sources.lucene
   (:refer-clojure :exclude [next])
-  (:use marcgrep.protocols
-        clojure.java.io)
+  (:use clojure.java.io)
+  (:require [marcgrep.protocols.marc-source :as marc-source]
+            [marcgrep.protocols.marc-destination :as marc-destination])
   (:import [org.marc4j MarcReader MarcStreamReader MarcXmlReader]
            [java.io ByteArrayInputStream]
            [org.apache.lucene.document FieldSelector FieldSelectorResult]
@@ -70,7 +71,7 @@
                        ^{:unsynchronized-mutable true} running?
                        ^{:unsynchronized-mutable true} reader-threads
                        ^{:unsynchronized-mutable true} finished-readers]
-  MarcSource
+  marc-source/MarcSource
   (init [this]
     (set! ir (IndexReader/open (FSDirectory/open (file index-path))
                                true))

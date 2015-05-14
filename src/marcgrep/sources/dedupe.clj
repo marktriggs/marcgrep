@@ -2,16 +2,15 @@
   (:refer-clojure :exclude [next])
   (:import [java.util BitSet]
            [org.marc4j.marc Record])
-  (:use marcgrep.protocols))
+  (:require [marcgrep.protocols.marc-source :as marc-source]))
 
 
-(deftype Dedupe [^{:tag marcgrep.protocols.MarcSource} marc-source
-                 ^{:tag BitSet} seen-ids]
-  MarcSource
-  (init [this] (.init marc-source))
+(deftype Dedupe [marcsource ^{:tag BitSet} seen-ids]
+  marc-source/MarcSource
+  (init [this] (marc-source/init marcsource))
   (next [this]
     (loop []
-      (when-let [^Record next-record (.next marc-source)]
+      (when-let [^Record next-record (marc-source/next marcsource)]
         (let [control-number (try (Integer/valueOf (.getControlNumber next-record))
                                   (catch Exception _
                                     (.println System/err
@@ -31,7 +30,7 @@
            (do (.set seen-ids control-number)
                next-record))))))
   (close [this]
-    (.close marc-source)))
+    (marc-source/close marcsource)))
 
 
 (defn dedupe-source [source]

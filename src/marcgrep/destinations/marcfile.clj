@@ -1,14 +1,14 @@
 (ns marcgrep.destinations.marcfile
-  (:use marcgrep.protocols
-        clojure.java.io)
+  (:use clojure.java.io)
   (:refer-clojure :exclude [next flush])
+  (:require [marcgrep.protocols.marc-destination :as marc-destination])
   (:import [org.marc4j MarcStreamWriter]
            [org.marc4j.marc Record]
            [java.io FileOutputStream]))
 
 
 (deftype MarcFileDestination [^MarcStreamWriter writer]
-  MarcDestination
+  marc-destination/MarcDestination
   (init [this])
   (write [this record]
     (.write writer ^Record record))
