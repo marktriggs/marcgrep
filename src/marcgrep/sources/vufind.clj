@@ -1,7 +1,6 @@
 (ns marcgrep.sources.vufind
   (:refer-clojure :exclude [next])
-  (:use marcgrep.protocols
-        clojure.java.io)
+  (:use clojure.java.io)
   (:require marcgrep.sources.lucene))
 
 

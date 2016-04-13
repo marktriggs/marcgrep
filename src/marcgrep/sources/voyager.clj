@@ -1,9 +1,9 @@
 (ns marcgrep.sources.voyager
   (:refer-clojure :exclude [next])
   (:require marcgrep.sources.remove-deletes
-            marcgrep.sources.marc-file)
-  (:use marcgrep.protocols
-        clojure.java.io)
+            marcgrep.sources.marc-file
+            [marcgrep.protocols.marc-source :as marc-source])
+  (:use clojure.java.io)
   (:import [org.marc4j MarcStreamReader]
            [java.io FileInputStream]
            [org.marc4j.marc Record VariableField]

@@ -15,4 +15,6 @@
   :ring {:handler marcgrep.core/handler
          :init marcgrep.core/init}
 
+  :aot :all
+
   :main marcgrep.core)
