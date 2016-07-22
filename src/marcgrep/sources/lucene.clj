@@ -5,20 +5,13 @@
             [marcgrep.protocols.marc-destination :as marc-destination])
   (:import [org.marc4j MarcReader MarcStreamReader MarcXmlReader]
            [java.io ByteArrayInputStream]
-           [org.apache.lucene.document FieldSelector FieldSelectorResult]
-           [org.apache.lucene.index IndexReader]
+           [java.nio.file Paths]
+           [org.apache.lucene.index DirectoryReader IndexReader MultiFields]
            [org.apache.lucene.store FSDirectory]
            [java.util.concurrent LinkedBlockingQueue]))
 
 
-(defn selector-for-field [field]
-  (reify FieldSelector
-    (accept [this f] (if (= f field)
-                       FieldSelectorResult/LOAD_AND_BREAK
-                       FieldSelectorResult/NO_LOAD))))
-
-
-(defn worker-job [^IndexReader ir
+(defn worker-job [^DirectoryReader dr
                   ^String stored-field
                   marc-flavour
                   preprocess-stored-value-fn
@@ -27,18 +20,21 @@
                   ^LinkedBlockingQueue queue running?]
   (Thread.
    (fn []
-     (let [selector (selector-for-field stored-field)]
+     (let [selector #{stored-field}
+           live-docs (MultiFields/getLiveDocs dr)]
        (loop [id start-id]
          (when (and @running? (< id upper-id))
            (let [last-id (Math/min (+ id batch-size) upper-id)]
              (let [batch (apply str
-                                (keep (fn [id]
-                                        (when-not (.isDeleted ir id)
-                                          (preprocess-stored-value-fn
-                                           (first (.getValues
-                                                   (.document ir id selector)
-                                                   stored-field)))))
-                                      (range id last-id)))
+                (keep (fn [id]
+                  ; https://lucene.apache.org/core/4_0_0/MIGRATE.html LUCENE-2600
+                  ; https://lucene.apache.org/core/5_0_0/core/org/apache/lucene/index/IndexReader.html
+                  (when (or (nil? live-docs) (.get live-docs id))
+                    (preprocess-stored-value-fn
+                      (first (.getValues
+                       (.document dr id selector)
+                         stored-field)))))
+                        (range id last-id)))
                    batch (if (= marc-flavour :xml)
                                    (str "<collection>" batch "</collection>")
                                    batch)
@@ -49,9 +45,13 @@
                                     (MarcStreamReader. bis))]
                (while (.hasNext in)
                  (.put queue (.next in)))
-               (recur last-id))))))
+               (recur last-id))
+             )
+           )))
      (when @running?
-       (.put queue :eof)))))
+       (.put queue :eof)))
+
+   ))
 
 
 (defn ranges
@@ -66,22 +66,21 @@
 
                        preprocess-stored-value-fn thread-count batch-size
 
-                       ^{:unsynchronized-mutable true :tag IndexReader} ir
+                       ^{:unsynchronized-mutable true :tag DirectoryReader} dr
                        ^{:unsynchronized-mutable true :tag LinkedBlockingQueue} queue
                        ^{:unsynchronized-mutable true} running?
                        ^{:unsynchronized-mutable true} reader-threads
                        ^{:unsynchronized-mutable true} finished-readers]
   marc-source/MarcSource
   (init [this]
-    (set! ir (IndexReader/open (FSDirectory/open (file index-path))
-                               true))
+    (set! dr (DirectoryReader/open (FSDirectory/open (Paths/get index-path (into-array String [])))))
     (set! queue (LinkedBlockingQueue. 16))
     (set! running? (atom true))
     (set! finished-readers (atom 0))
-    (let [maxdoc (.maxDoc ir)]
+    (let [maxdoc (.maxDoc dr)]
       (set! reader-threads
             (doall (map (fn [id-range]
-                          (.start (worker-job ir stored-field marc-flavour
+                          (.start (worker-job dr stored-field marc-flavour
                                               (or preprocess-stored-value-fn
                                                   identity)
                                               batch-size
@@ -97,8 +96,7 @@
   (close [this]
     (reset! running? false)
     (.clear queue)
-    (.close ir)))
-
+    (.close dr)))
 
 (defn create-lucene-source [index-path stored-field marc-flavour & opts]
   (let [opts (apply hash-map opts)]
